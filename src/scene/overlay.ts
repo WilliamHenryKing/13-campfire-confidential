@@ -3,7 +3,8 @@ import { type Frame, NORM, NORM_EXTENT } from "../game/compare";
 import { WALL } from "../game/shadow";
 
 // A transparent canvas stretched over the tent wall: the camper's sketch traced in chalk
-// (hint level 2) and the final tableau painted as a strip of the player's own shadows.
+// (hint level 2), the gold outline when a story is told, and the final tableau painted from
+// the player's own shadows with the campers leaning into the lamplight.
 
 const PX = 100; // canvas pixels per metre of wall
 const W = Math.round((WALL.maxX - WALL.minX) * PX);
@@ -12,6 +13,7 @@ const H = Math.round((WALL.maxY - WALL.minY) * PX);
 export interface WallOverlay {
   mesh: Mesh;
   trace(grid: Uint8Array | null, frame: Frame | null): void;
+  reveal(grid: Uint8Array, frame: Frame, alpha: number): void;
   tableau(figures: readonly Uint8Array[], captions: readonly string[], reveal: number): void;
   clear(): void;
 }
@@ -63,6 +65,32 @@ function fill(
     }
 }
 
+/** Seated campers' silhouettes at both edges of the wall, soft as real shadows. */
+function campers(ctx: CanvasRenderingContext2D, alpha: number) {
+  if (alpha <= 0) return;
+  const people: [number, number, number][] = [
+    [-3.0, 0.95, 1],
+    [-2.35, 0.8, -1],
+    [2.4, 0.9, 1],
+    [3.05, 1.0, -1],
+  ];
+  ctx.save();
+  ctx.filter = "blur(5px)";
+  ctx.fillStyle = `rgba(30, 18, 12, ${0.8 * alpha})`;
+  for (const [x, h, lean] of people) {
+    const [bx, by] = toCanvas(x, 0);
+    const [, headY] = toCanvas(x, h);
+    const r = 0.13 * PX;
+    ctx.beginPath();
+    ctx.ellipse(bx, by, 0.34 * PX, (h - 0.2) * PX, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(bx + lean * 0.06 * PX, headY, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function createWallOverlay(): WallOverlay {
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -106,8 +134,25 @@ export function createWallOverlay(): WallOverlay {
       }
       texture.needsUpdate = true;
     },
+    reveal(grid, frame, alpha) {
+      ctx.clearRect(0, 0, W, H);
+      if (frame.scale > 0) {
+        const place = (u: number, v: number) =>
+          toCanvas(frame.cx + (frame.mirror ? -u : u) * frame.scale, frame.cy + v * frame.scale);
+        ctx.filter = "blur(6px)";
+        ctx.strokeStyle = `rgba(255, 190, 90, ${0.55 * alpha})`;
+        ctx.lineWidth = 10;
+        outline(ctx, grid, place);
+        ctx.filter = "none";
+        ctx.strokeStyle = `rgba(255, 226, 160, ${0.95 * alpha})`;
+        ctx.lineWidth = 3.5;
+        outline(ctx, grid, place);
+      }
+      texture.needsUpdate = true;
+    },
     tableau(figures, captions, reveal) {
       ctx.clearRect(0, 0, W, H);
+      campers(ctx, Math.min(1, reveal * 2));
       const n = figures.length;
       // A 2 × 2 storyboard in the middle of the wall, so it reads on a phone as well.
       const s = 0.45;

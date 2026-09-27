@@ -110,6 +110,13 @@ function render(state: GameState) {
           : null,
       );
     }
+    if (phaseChanged && state.phase === "told")
+      world.reveal(chapter.id, normalise(targetFor(chapter).figure), {
+        cx: ev.figure.cx,
+        cy: ev.figure.cy,
+        scale: ev.figure.scale,
+        mirror: ev.mirror,
+      });
     if (
       state.phase === "play" &&
       lastPlacements &&
