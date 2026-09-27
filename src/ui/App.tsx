@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import type { SoundEngine } from "../audio/engine";
 import { normalise } from "../game/compare";
 import { chapterAt, evaluateState, targetFor } from "../game/state";
 import { adviceText, propNames } from "../game/words";
 import { CoachTip, EndingCard, LAST_CHAPTER, TitleCard, ToldCard } from "./Cards";
 import { Controls } from "./Controls";
+import { MuteButton } from "./MuteButton";
 import { StoryCard } from "./StoryCard";
 import { type Store, useGame } from "./store";
 
@@ -19,7 +21,7 @@ function readCoached(): boolean {
   }
 }
 
-export function App({ store }: { store: Store }) {
+export function App({ store, sound }: { store: Store; sound: SoundEngine }) {
   const state = useGame(store);
   const { dispatch } = store;
   const chapter = chapterAt(state.chapter);
@@ -29,6 +31,7 @@ export function App({ store }: { store: Store }) {
   const [coached, setCoached] = useState(readCoached);
 
   const dismissCoach = () => {
+    sound.play("click");
     setCoached(true);
     try {
       window.localStorage.setItem(COACH_KEY, "1");
@@ -40,6 +43,10 @@ export function App({ store }: { store: Store }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "m" || e.key === "M") {
+        sound.setMuted(!sound.muted);
+        return;
+      }
       const s = store.get();
       if (s.phase !== "play") return;
       const n = Number.parseInt(e.key, 10);
@@ -71,12 +78,13 @@ export function App({ store }: { store: Store }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [store, dispatch]);
+  }, [store, dispatch, sound]);
 
   const showCoach = state.phase === "play" && state.chapter === 0 && !coached;
 
   return (
     <div className="hud">
+      <MuteButton sound={sound} />
       {state.phase === "title" && <TitleCard onStart={() => dispatch({ type: "start" })} />}
       {(state.phase === "play" || state.phase === "told") && (
         <StoryCard

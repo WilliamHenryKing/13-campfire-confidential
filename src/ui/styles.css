@@ -313,6 +313,7 @@ body {
   grid-row: 1;
   align-self: start;
   justify-self: end;
+  margin-top: 54px;
   max-width: 360px;
   padding: 12px 14px;
   font-size: 13px;
@@ -384,10 +385,17 @@ body {
     max-height: 46vh;
     padding: 16px 18px;
   }
+  .mute {
+    width: 36px;
+    height: 36px;
+    top: max(14px, env(safe-area-inset-top));
+    right: 14px;
+  }
   .coach {
     grid-row: 2;
     align-self: end;
     justify-self: stretch;
+    margin-top: 0;
     max-width: none;
     font-size: 12px;
   }
@@ -417,4 +425,24 @@ fieldset {
   padding: 0;
   border: 0;
   min-width: 0;
+}
+
+.mute {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mute[aria-pressed="true"] {
+  color: var(--dim);
 }

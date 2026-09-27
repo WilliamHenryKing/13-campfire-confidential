@@ -1,4 +1,6 @@
 import { createRoot } from "react-dom/client";
+import { cuesFor } from "./audio/cues";
+import { createSoundEngine } from "./audio/engine";
 import { normalise } from "./game/compare";
 import { PROPS } from "./game/props";
 import { chapterAt, evaluateState, type GameState, targetFor } from "./game/state";
@@ -16,6 +18,25 @@ if (reducedMotion) document.documentElement.classList.add("reduced-motion");
 const store = createStore(
   (state, i) => PROPS[chapterAt(state.chapter).props[i]?.kind ?? "thermos"].radius,
 );
+
+// Every dispatch passes through here so the sound follows the game.
+const sound = createSoundEngine(reducedMotion);
+const rawDispatch = store.dispatch;
+store.dispatch = (action) => {
+  const before = store.get();
+  const scoreBefore = before.phase === "play" ? evaluateState(before).score : 0;
+  rawDispatch(action);
+  const after = store.get();
+  const chapter = chapterAt(after.chapter);
+  const scores =
+    after.phase === "play" && before.chapter === after.chapter && before.phase === "play"
+      ? { before: scoreBefore, after: evaluateState(after).score, pass: chapter.pass }
+      : null;
+  const kinds = chapter.props.map((p) => p.kind);
+  for (const cue of cuesFor(action, before, after, kinds, scores)) sound.play(cue.name, cue);
+  if (action.type === "start" || action.type === "replay") sound.begin();
+  sound.setMood(after.phase === "tableau" ? 0 : 1);
+};
 
 const sceneHost = document.createElement("div");
 sceneHost.className = "scene";
@@ -41,11 +62,13 @@ world.bind({
   select: (i) => {
     if (store.get().phase !== "play") return;
     interacting = true;
+    sound.play("grab");
     store.dispatch({ type: "select", index: i });
   },
   drag: (i, x, y) => store.dispatch({ type: "place", index: i, x, y }),
   depth: (steps) => store.dispatch({ type: "nudge", dz: steps }),
   release: () => {
+    if (interacting) sound.play("settle");
     interacting = false;
     scheduleSettle();
   },
@@ -61,11 +84,18 @@ function render(state: GameState) {
   if (!shown || shown.chapter !== state.chapter || shown.phase === "tableau")
     world.showProps(chapter.props.map((p) => p.kind));
   if (state.phase === "tableau") {
-    if (phaseChanged)
+    if (phaseChanged) {
+      const n = reducedMotion ? 1 : state.told.length;
+      for (let k = 0; k < n; k++)
+        window.setTimeout(
+          () => sound.play("paint", { rate: 0.9 + k * 0.06 }),
+          reducedMotion ? 0 : 500 + (k * 3200) / n,
+        );
       world.tableau(
         state.told,
         state.told.map((_, k) => chapterAt(k).title),
       );
+    }
   } else {
     world.sync(state.placements, state.selected, state.phase === "play");
     const ev = evaluateState(state);
@@ -96,5 +126,5 @@ store.subscribe(() => render(store.get()));
 render(store.get());
 
 const root = document.getElementById("root");
-if (root) createRoot(root).render(<App store={store} />);
+if (root) createRoot(root).render(<App store={store} sound={sound} />);
 world.start(() => worldReady());
