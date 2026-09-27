@@ -1,30 +1,80 @@
-# CAMPFIRE CONFIDENTIAL
+<p align="center">
+  <img src="docs/readme/banner.svg" alt="Campfire Confidential: lantern-lit tent canvas where a shadow mushroom forms" width="100%">
+</p>
 
-**Status: v1 complete.** CAMPFIRE CONFIDENTIAL is a short shadow-composition game. A camp lantern throws the shadows of hanging camp props onto a tent wall. Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a rocket. You arrange two to four props until their combined shadow tells the story. The game compares shapes fairly: your figure is centred and scaled before it is compared with the camper's sketch, so it counts anywhere on the wall, at any size and mirrored, and small slips still pass. Live feedback, two levels of hints and sound design help you there. When a figure matches, it is traced in gold, the lamp swells and the figure comes alive: the mushroom sways, the rabbit hops, the snail crawls and the rocket lifts off. The camper's secret is then told line by line. After story four the lamp burns low and your own four shadows are painted on the tent beside the campers' silhouettes. From there you can tell them again. Not deployed.
+<p align="center">
+  <a href="https://13-campfire-confidential.williamking.workers.dev"><img alt="Play it live" src="https://img.shields.io/badge/Play_it_live-%E2%96%B6-ff9a3c?style=for-the-badge&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://threejs.org"><img alt="Three.js" src="https://img.shields.io/badge/Three.js-ff9a3c?style=for-the-badge&logo=threedotjs&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://www.typescriptlang.org"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-ff9a3c?style=for-the-badge&logo=typescript&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://vite.dev"><img alt="Vite" src="https://img.shields.io/badge/Vite-ff9a3c?style=for-the-badge&logo=vite&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://bun.sh"><img alt="Bun" src="https://img.shields.io/badge/Bun-ff9a3c?style=for-the-badge&logo=bun&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://tailwindcss.com"><img alt="Tailwind" src="https://img.shields.io/badge/Tailwind-ff9a3c?style=for-the-badge&logo=tailwindcss&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+  <a href="https://gsap.com"><img alt="GSAP" src="https://img.shields.io/badge/GSAP-ff9a3c?style=for-the-badge&logo=greensock&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
+</p>
+
+<p align="center"><b>Hang the camp's odds and ends in front of a lantern until their shadows on the tent tell the campers' strangest secrets.</b></p>
+
+<p align="center">
+  <img src="docs/readme/preview.gif" alt="Gameplay: the lamp is lit, a thermos and an enamel bowl are moved until their shadows form a mushroom, which is traced in gold" width="800">
+</p>
 
 ## How to play
 
-- **Pick a prop**: tap or click it, use the chips, or press `1`–`4`.
-- **Move its shadow**: drag the prop, or use the arrow buttons or arrow keys.
-- **Resize the shadow**: scroll, pinch, or use **Bigger** / **Smaller** (`+` / `−`). Bigger brings the prop toward the lamp.
-- **Change its outline**: use **Turn** (`Q` / `E`) to swing the prop round, and **Tilt** (`Z` / `X`) to lean it.
-- **Hint** (`H`): the first press gives plain advice naming one prop ("Move the kettle's shadow up…"). The second press traces the sketch in chalk over your figure on the tent.
-- **Reset** (`R`) puts the props back where they started.
-- When the likeness meter reads *That's it!* and you let go, the story is told.
-- **Sound**: the mute button (top right) or `M` toggles sound, and the choice is remembered. Audio starts on your first click or key press and pauses while the tab is hidden.
+Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a rocket. The camper's sketch shows the figure. Arrange two to four hanging props until their combined shadow matches it, then let go. It counts anywhere on the wall, at any size and even mirrored.
 
-Controls are labelled buttons with visible focus. The game honours `prefers-reduced-motion`: there is no lamp flicker, prop swing, story animation, drifting dust, curtain or tweened tableau.
+| Action | Keyboard | Mouse / touch |
+| --- | --- | --- |
+| Pick a prop | `1`–`4`, or `,` / `.` to cycle | Tap the prop or its chip |
+| Move its shadow | Arrow keys | Drag the prop, or the ← ↑ ↓ → buttons |
+| Bigger / smaller shadow | `+` / `−` | Scroll, pinch, or **Bigger** / **Smaller** |
+| Turn the prop | `Q` / `E` | **Turn ↻** |
+| Tilt the prop | `Z` / `X` | **Tilt ↶** / **Tilt ↷** |
+| Hint: advice, then a chalk trace | `H` | **Hint** → **Trace it** |
+| Reset the story | `R` | **Reset** |
+| Sound on / off (remembered) | `M` | 🔊 button, top right |
 
-## How it works
+## What's inside
 
-- `src/game/`: pure rules, unit-tested in `tests/`. Each prop is a union of convex solids. These are projected from the lamp onto the wall plane and rasterised into a mask (`shadow.ts`). A figure is normalised by its centroid and √area, and compared with the target by overlap, both straight and mirrored (`compare.ts`). Every prop must also carry a fair share of the figure. Per-prop advice (`hints.ts`), chapters with per-figure pass marks (`chapters.ts`) and the game reducer (`state.ts`) complete the rules.
-- `src/scene/`: three.js. The spotlight sits exactly at the rules' lamp position, so the rendered shadow map is the shadow being judged. The scene also holds the procedural canvas tent, clay-style props on strings, pointer input, and the wall overlay for the hint trace and the tableau.
-- `src/audio/`: a Web Audio engine with music, ambience and SFX buses, and `cues.ts`, a pure and tested map from game steps to sounds. Ticks climb in pitch as the likeness rises.
-- `src/ui/`: React HUD (story card, sketch, meter, controls, cards, mute). `src/main.tsx` wires one store to the world, the HUD and the sound.
+- **Real shadows, fairly judged.** The rendered shadow is the one being scored. Your figure is compared by shape, not by pixel position, so there is no single hidden answer.
+- **Four stories and a finale.** Each told secret brings its figure to life: the mushroom sways, the rabbit hops, the snail crawls and the rocket lifts off. The last story ends on a painted storyboard of your own shadows.
+- **Feedback that helps.** A live likeness meter, and advice that names one prop and one change ("the kettle's shadow wants to be bigger"). A chalk trace of the sketch follows if you need it.
+- **Cosy sound design.** A harp loop, crickets, fire and canvas wind, plus a clink per material, creaks, rising ticks as the likeness climbs, and a reveal sting.
+- **Tactile props.** Clay-style camp gear swings on strings in a lantern beam full of drifting dust.
+- **Made for everyone.** Mouse, touch and keyboard, labelled controls with visible focus, and a phone layout. `prefers-reduced-motion` turns off every animation.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="68%"><img src="docs/readme/desktop.png" alt="Desktop: the rabbit story just told, its shadow traced in gold on the tent"></td>
+    <td width="32%"><img src="docs/readme/phone.png" alt="Phone: the rabbit taking shape, with advice to move a spoon toward the lamp"></td>
+  </tr>
+  <tr>
+    <td align="center">Desktop, 1440 × 900</td>
+    <td align="center">Phone, 390 × 844</td>
+  </tr>
+</table>
+
+## Built with
+
+Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict), Vite, Bun, Tailwind CSS v4, GSAP and Biome. Every mesh and texture is procedural.
+
+- **Shadow projection you can test.** Each prop is a union of convex solids. `src/game/shadow.ts` projects every solid from the lamp onto the tent plane, takes the convex hull and rasterises it into a mask. The three.js spotlight sits at exactly the same lamp position, so what you see is what is scored.
+- **Likeness that ignores where and how big.** A figure is centred on its centroid and scaled by √area into a 48 × 48 grid. It is then compared with the target by overlap (Dice), straight and mirrored. A participation factor makes every prop pull its weight, and each story has its own pass mark. Unit tests check that the known answer passes, that small slips still pass, and that random clutter almost never does.
+- **Advice from geometry.** Each prop's shadow is compared with its counterpart in a known answer, relative to the figure's largest prop. The biggest error, in the order size → outline → position, becomes one plain sentence.
+
+## Run it locally
+
+```sh
+bun install
+bun run dev        # http://127.0.0.1:4523/
+bun run check      # strict tsc, Biome, bun test, production build into dist/
+bun run test:e2e   # Playwright: tells story 1 by keyboard against the build
+```
 
 ## Credits
 
-All geometry, textures and type are made in code or use system fonts. Audio lives in `public/audio/` (about 1.6 MB), re-encoded to 64 kbps MP3 and trimmed or level-matched. No other change was made. Each licence was checked on the source page on 2026-09-27.
+All geometry, textures and type are made in code or use system fonts. The audio is re-encoded to 64 kbps MP3 in `public/audio/` (about 1.6 MB). Each licence was checked on its source page.
 
 | File | Source | Author | Licence |
 | --- | --- | --- | --- |
@@ -40,14 +90,6 @@ All geometry, textures and type are made in code or use system fonts. Audio live
 
 The lantern hiss and the distant owl are synthesised with Web Audio in `src/audio/engine.ts`. CC0 needs no attribution. The credits are given anyway.
 
-## Development
+---
 
-```sh
-bun install --frozen-lockfile
-bun run dev      # http://127.0.0.1:4523/
-bun run check    # tsc, Biome, bun test, production build into dist/
-bun run preview  # http://127.0.0.1:4623/
-bun run test:e2e # Playwright: tells story 1 by keyboard against the build (headless, SwiftShader is fine)
-```
-
-`development/` holds the earlier tooling smoke harness (`bun run dev:smoke`). It is not part of the game.
+<p align="center"><sub>Part of William King's portfolio collection</sub></p>
