@@ -69,7 +69,7 @@ const campfire: Build = (seed) => {
 
 export const project = { id: "13-campfire-confidential", name: "CAMPFIRE CONFIDENTIAL", background: 0x2a2018 };
 export const families: Recipes["families"] = [
-  { id: "shadow-prop", count: 52, voxel: 0.0022, keep: 0.3, silhouette: true, build: prop },
+  { id: "shadow-prop", count: 104, voxel: 0.0022, keep: 0.3, silhouette: true, build: prop },
   { id: "campfire", count: 6, voxel: 0.006, keep: 0.3, hero: true, build: campfire },
 ];
 export const textures: Recipes["textures"] = [
