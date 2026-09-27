@@ -16,6 +16,7 @@ import {
 } from "three";
 import { LAMP } from "../game/shadow";
 import { buildCampsite } from "./campsite";
+import { createDust } from "./dust";
 
 // Renderer, camera and light. The spotlight sits exactly at the rules' lamp position so the
 // shadow drawn by three.js is the shadow the game judges.
@@ -50,21 +51,24 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
 
   const camera = new PerspectiveCamera(40, 1, 0.1, 60);
 
-  scene.add(new HemisphereLight("#44507a", "#2a1f16", 0.55));
+  // Low ambient keeps the umbra dark, so the figure reads clearly on the bright canvas.
+  scene.add(new HemisphereLight("#44507a", "#2a1f16", 0.26));
 
-  const key = new SpotLight("#ffbf80", 75, 0, 1.02, 0.55, 2);
+  const key = new SpotLight("#ffbf80", 80, 0, 1.02, 0.6, 2);
   key.position.set(...LAMP);
   key.target.position.set(0, 1.55, 0);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  const big = Math.min(window.innerWidth, window.innerHeight) > 600;
+  key.shadow.mapSize.set(big ? 4096 : 2048, big ? 4096 : 2048);
   key.shadow.camera.near = 0.3;
   key.shadow.camera.far = 9;
   key.shadow.bias = -0.0004;
   key.shadow.normalBias = 0.01;
-  key.shadow.radius = 3;
+  key.shadow.radius = 2;
   scene.add(key, key.target);
 
-  const fill = new PointLight("#ff9b4a", 3.2, 6, 2);
+  // Warm spill on the lantern and nearby grass only; it stops short of the tent wall.
+  const fill = new PointLight("#ff9b4a", 3.2, 3.6, 2);
   fill.position.set(LAMP[0], LAMP[1] + 0.25, LAMP[2] + 0.2);
   scene.add(fill);
 
@@ -90,6 +94,9 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   const props = new Group();
   scene.add(props);
 
+  const dust = createDust(reducedMotion);
+  scene.add(dust.object);
+
   const fit = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
@@ -97,13 +104,13 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     const aspect = w / h;
     const portrait = aspect < 0.9;
     camera.aspect = aspect;
-    camera.fov = portrait ? 60 : 42;
-    // Keep the middle of the tent wall and the hanging props in frame at any aspect.
-    const want = portrait ? 4.4 : 7.6;
+    camera.fov = portrait ? 58 : 40;
+    // Frame the middle of the tent, where the figures form, so the shadows fill the view.
+    const want = portrait ? 4.0 : 5.4;
     const halfV = Math.tan(((camera.fov / 2) * Math.PI) / 180);
-    const dist = Math.max(9.6, want / 2 / (halfV * aspect) + 1.2);
-    camera.position.set(portrait ? 0.4 : 1.5, portrait ? 2.9 : 2.7, dist);
-    camera.lookAt(0, portrait ? 1.25 : 1.35, 1.2);
+    const dist = Math.max(portrait ? 9.2 : 8.4, want / 2 / (halfV * aspect) + 1.2);
+    camera.position.set(portrait ? 0.35 : 1.1, portrait ? 2.8 : 2.45, dist);
+    camera.lookAt(0, portrait ? 1.3 : 1.5, 1.0);
     camera.updateProjectionMatrix();
   };
   fit();
@@ -129,10 +136,11 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
       const loop = (t: number) => {
         raf = requestAnimationFrame(loop);
         onFrame(t);
+        dust.tick(t);
         const flicker = reducedMotion
           ? 1
           : 1 + 0.035 * Math.sin(t * 0.011) + 0.02 * Math.sin(t * 0.027 + 1.3);
-        key.intensity = 75 * glow * flicker;
+        key.intensity = 80 * glow * flicker;
         fill.intensity = 3.2 * glow * flicker;
         (glass.material as MeshStandardMaterial).emissiveIntensity = 2.4 * glow * flicker;
         renderer.render(scene, camera);
