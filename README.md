@@ -1,23 +1,36 @@
 # CAMPFIRE CONFIDENTIAL
 
-Status: planned; isolated development environment. No project artwork or features implemented yet.
+**Status: v1 complete.** CAMPFIRE CONFIDENTIAL is a short shadow-composition game. A camp lantern throws the shadows of hanging camp props onto a tent wall. Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a rocket. You arrange two to four props until their combined shadow tells the story. The game compares shapes fairly: your figure is centred and scaled before it is compared with the camper's sketch, so it counts anywhere on the wall, at any size and mirrored, and small slips still pass. Live feedback and two levels of hints help you there. The loop runs title → four stories → a painted tableau of your own shadows → replay. Not deployed.
 
-Working checkout: `experiences/13-campfire-confidential`. Repository anchor: `.repositories/13-campfire-confidential`. Branch: `work/experience`. Preserve both directories.
+## How to play
+
+- **Pick a prop**: tap or click it, use the chips, or press `1`–`4`.
+- **Move its shadow**: drag the prop, or use the arrow buttons or arrow keys.
+- **Resize the shadow**: scroll, pinch, or use **Bigger** / **Smaller** (`+` / `−`). Bigger brings the prop toward the lamp.
+- **Change its outline**: use **Turn** (`Q` / `E`) to swing the prop round, and **Tilt** (`Z` / `X`) to lean it.
+- **Hint** (`H`): the first press gives plain advice naming one prop ("Move the kettle's shadow up…"). The second press traces the sketch in chalk over your figure on the tent.
+- **Reset** (`R`) puts the props back where they started.
+- When the likeness meter reads *That's it!* and you let go, the story is told.
+
+Controls are labelled buttons with visible focus. The game honours `prefers-reduced-motion` (no flicker, no tweened tableau).
+
+## How it works
+
+- `src/game/`: pure rules, unit-tested in `tests/`. Each prop is a union of convex solids. These are projected from the lamp onto the wall plane and rasterised into a mask (`shadow.ts`). A figure is normalised by its centroid and √area, and compared with the target by overlap, both straight and mirrored (`compare.ts`). Every prop must also carry a fair share of the figure. Per-prop advice (`hints.ts`), chapters with per-figure pass marks (`chapters.ts`) and the game reducer (`state.ts`) complete the rules.
+- `src/scene/`: three.js. The spotlight sits exactly at the rules' lamp position, so the rendered shadow map is the shadow being judged. The scene also holds the procedural canvas tent, clay-style props on strings, pointer input, and the wall overlay for the hint trace and the tableau.
+- `src/ui/`: React HUD (story card, sketch, meter, controls, cards). `src/main.tsx` wires one store to both.
+
+## Credits
+
+All geometry, textures and type are made in code or use system fonts. No external assets are used.
 
 ## Development
 
-```powershell
+```sh
 bun install --frozen-lockfile
-bun run dev
-bun run check
-bun run preview
+bun run dev      # http://127.0.0.1:4523/
+bun run check    # tsc, Biome, bun test, production build into dist/
+bun run preview  # http://127.0.0.1:4623/
 ```
 
-Development: http://127.0.0.1:4523/
-Preview: http://127.0.0.1:4623/
-
-The current dev/build scripts run a **development-only smoke harness** in `development/`; output is `dist-smoke/`. It verifies React, Three.js, GSAP and CSS tooling. It is not a portfolio page. Creative production will add the real source and a production build in `dist/`.
-
-Each project owns its dependencies and lockfile. Tailwind uses its Vite plugin; Lightning CSS performs final CSS minification. No shared visual runtime or sibling imports.
-
-Read the collection plan for this project's full creative and completion requirements. Design and asset documents are created when its serial production turn begins. All commercial content will be fictional and local-only.
+`development/` holds the earlier tooling smoke harness (`bun run dev:smoke`). It is not part of the game.
