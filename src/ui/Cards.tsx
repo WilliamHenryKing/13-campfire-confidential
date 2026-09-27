@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CHAPTERS, type Chapter } from "../game/chapters";
 
 // Title, "told" and ending cards, plus the first-time coach tip. Each moves focus to its
@@ -29,6 +29,14 @@ export function TitleCard({ onStart }: { onStart: () => void }) {
   );
 }
 
+const REDUCED =
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** Split a told line into sentences, revealed one after another. */
+export function sentences(text: string): string[] {
+  return text.split(/(?<=[.!?])\s+/).filter(Boolean);
+}
+
 export function ToldCard({
   chapter,
   last,
@@ -39,13 +47,30 @@ export function ToldCard({
   onNext: () => void;
 }) {
   const button = useAutoFocus<HTMLButtonElement>();
+  const lines = sentences(chapter.told);
+  const [shown, setShown] = useState(REDUCED ? lines.length : 0);
+  useEffect(() => {
+    if (shown >= lines.length) return;
+    const t = window.setTimeout(() => setShown((n) => n + 1), shown === 0 ? 900 : 1300);
+    return () => window.clearTimeout(t);
+  }, [shown, lines.length]);
   return (
-    <section className="card card-told" aria-live="polite" aria-labelledby="told-title">
-      <p className="eyebrow">Told</p>
+    <section className="card card-told" aria-labelledby="told-title">
+      <p className="eyebrow">Told · {chapter.teller}'s secret</p>
       <h2 id="told-title" className="story-title">
         {chapter.title}
       </h2>
-      <p className="lede">{chapter.told}</p>
+      <p className="lede told-lines" aria-live="polite">
+        {lines.map((line, i) => (
+          <span
+            key={line}
+            className={i < shown ? "line is-shown" : "line"}
+            aria-hidden={i >= shown}
+          >
+            {line}{" "}
+          </span>
+        ))}
+      </p>
       <button ref={button} type="button" className="cta" onClick={onNext}>
         {last ? "Close the case" : "Next story"}
       </button>
@@ -57,13 +82,13 @@ export function EndingCard({ onReplay }: { onReplay: () => void }) {
   const button = useAutoFocus<HTMLButtonElement>();
   return (
     <section className="card card-end" aria-labelledby="end-title">
-      <p className="eyebrow">The counsellor's report</p>
+      <p className="eyebrow">The lamp burns low · the counsellor's report</p>
       <h2 id="end-title" className="title title-sm">
         Case closed
       </h2>
       <p className="lede">
-        A mushroom, a rabbit, a snail and a rocket. A perfectly normal night at Camp Pinecone, told
-        entirely in your shadows.
+        Four campers, four secrets, one lantern. A mushroom, a rabbit, a snail and a rocket: a
+        perfectly normal night at Camp Pinecone, told entirely in your shadows.
       </p>
       <ol className="told-list">
         {CHAPTERS.map((c) => (
@@ -73,7 +98,7 @@ export function EndingCard({ onReplay }: { onReplay: () => void }) {
         ))}
       </ol>
       <button ref={button} type="button" className="cta" onClick={onReplay}>
-        Tell it again
+        Tell them again
       </button>
     </section>
   );

@@ -29,6 +29,20 @@ export function App({ store, sound }: { store: Store; sound: SoundEngine }) {
   const sketch = useMemo(() => normalise(targetFor(chapter).figure), [chapter]);
   const ev = evaluateState(state);
   const [coached, setCoached] = useState(readCoached);
+  const [curtain, setCurtain] = useState(false);
+
+  // A short fade to dark between stories, so each one starts as a fresh scene.
+  const turnPage = (action: "next" | "replay") => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      dispatch({ type: action });
+      return;
+    }
+    setCurtain(true);
+    window.setTimeout(() => {
+      dispatch({ type: action });
+      window.setTimeout(() => setCurtain(false), 80);
+    }, 480);
+  };
 
   const dismissCoach = () => {
     sound.play("click");
@@ -85,6 +99,7 @@ export function App({ store, sound }: { store: Store; sound: SoundEngine }) {
   return (
     <div className="hud">
       <MuteButton sound={sound} />
+      <div className={curtain ? "curtain is-on" : "curtain"} aria-hidden="true" />
       {state.phase === "title" && <TitleCard onStart={() => dispatch({ type: "start" })} />}
       {(state.phase === "play" || state.phase === "told") && (
         <StoryCard
@@ -110,10 +125,10 @@ export function App({ store, sound }: { store: Store; sound: SoundEngine }) {
         <ToldCard
           chapter={chapter}
           last={state.chapter === LAST_CHAPTER}
-          onNext={() => dispatch({ type: "next" })}
+          onNext={() => turnPage("next")}
         />
       )}
-      {state.phase === "tableau" && <EndingCard onReplay={() => dispatch({ type: "replay" })} />}
+      {state.phase === "tableau" && <EndingCard onReplay={() => turnPage("replay")} />}
     </div>
   );
 }

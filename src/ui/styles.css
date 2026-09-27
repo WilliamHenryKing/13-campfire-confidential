@@ -446,3 +446,34 @@ fieldset {
 .mute[aria-pressed="true"] {
   color: var(--dim);
 }
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: #07070c;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+
+.curtain.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.told-lines .line {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.told-lines .line.is-shown {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain,
+  .told-lines .line {
+    transition: none;
+  }
+}
