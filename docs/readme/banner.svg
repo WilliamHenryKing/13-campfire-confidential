@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="t d">
+  <title id="t">Campfire Confidential</title>
+  <desc id="d">A lantern-lit tent canvas. Two camp props' shadows slide together until they form a mushroom, traced in gold.</desc>
+  <defs>
+    <radialGradient id="lamp" cx="0.72" cy="0.62" r="0.75">
+      <stop offset="0" stop-color="#ffd79a"/>
+      <stop offset="0.35" stop-color="#f0a95a"/>
+      <stop offset="0.75" stop-color="#9a5a2a"/>
+      <stop offset="1" stop-color="#3a2014"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.7" r="0.45">
+      <stop offset="0" stop-color="#fff0c8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff0c8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vignette" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#0d0e16" stop-opacity="0.85"/>
+      <stop offset="0.28" stop-color="#0d0e16" stop-opacity="0.15"/>
+      <stop offset="0.8" stop-color="#0d0e16" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0d0e16" stop-opacity="0.55"/>
+    </linearGradient>
+    <pattern id="weave" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 1.5h6M0 4.5h6" stroke="#6b4222" stroke-opacity="0.13" stroke-width="1"/>
+      <path d="M1.5 0v6M4.5 0v6" stroke="#fff4dc" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="edge" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <filter id="halo" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+    <symbol id="cap" overflow="visible"><path d="M-112 0C-108-62-62-98 0-100C62-98 108-62 112 0C70 10-70 10-112 0Z"/></symbol>
+    <symbol id="whole" overflow="visible"><path d="M-112 0C-108-62-62-98 0-100C62-98 108-62 112 0C90 5 56 7.5 24 7.8C26 40 30 80 34 112H-34C-30 80-26 40-24 7.8C-56 7.5-90 5-112 0Z"/></symbol>
+    <symbol id="stem" overflow="visible"><path d="M-24 0C-26 40-30 80-34 112H34C30 80 26 40 24 0Z"/></symbol>
+  </defs>
+  <style>
+    .flicker { animation: flicker 1.5s ease-in-out infinite alternate; }
+    .mote { animation: drift 6s linear infinite; }
+    .m2 { animation-delay: -1.5s; } .m3 { animation-delay: -3s; } .m4 { animation-delay: -4.5s; }
+    .m5 { animation-delay: -0.8s; } .m6 { animation-delay: -2.3s; } .m7 { animation-delay: -3.8s; } .m8 { animation-delay: -5.2s; }
+    .cap { animation: cap 6s cubic-bezier(.5,0,.3,1) infinite; }
+    .stem { animation: stem 6s cubic-bezier(.5,0,.3,1) infinite; }
+    .blurred { animation: blurred 6s ease-in-out infinite; }
+    .crisp { animation: crisp 6s ease-in-out infinite; }
+    .gold { animation: gold 6s ease-in-out infinite; }
+    .word { animation: word 6s ease-in-out infinite; }
+    @keyframes flicker { 0% { opacity: .78 } 40% { opacity: .95 } 70% { opacity: .84 } 100% { opacity: 1 } }
+    @keyframes drift { 0% { transform: translate(0,0); opacity: 0 } 15% { opacity: .9 } 85% { opacity: .7 } 100% { transform: translate(18px,-90px); opacity: 0 } }
+    @keyframes cap { 0%, 8% { transform: translate(-150px,-30px) rotate(-24deg) } 55%, 92% { transform: translate(0,0) rotate(0) } 100% { transform: translate(-150px,-30px) rotate(-24deg) } }
+    @keyframes stem { 0%, 8% { transform: translate(130px,40px) rotate(18deg) } 55%, 92% { transform: translate(0,0) rotate(0) } 100% { transform: translate(130px,40px) rotate(18deg) } }
+    @keyframes blurred { 0%, 40% { opacity: 1 } 60%, 90% { opacity: 0 } 100% { opacity: 1 } }
+    @keyframes crisp { 0%, 40% { opacity: 0 } 60%, 90% { opacity: .92 } 100% { opacity: 0 } }
+    @keyframes gold { 0%, 58% { opacity: 0 } 66% { opacity: 1 } 88% { opacity: .85 } 96%, 100% { opacity: 0 } }
+    @keyframes word { 0%, 60% { opacity: 0 } 70%, 88% { opacity: 1 } 96%, 100% { opacity: 0 } }
+    @media (prefers-reduced-motion: reduce) {
+      .flicker, .mote, .cap, .stem, .blurred, .crisp, .gold, .word { animation: none; }
+      .blurred { opacity: 0; } .crisp { opacity: .92; } .gold, .word { opacity: 1; } .mote { opacity: .6; }
+    }
+  </style>
+
+  <rect width="1280" height="360" fill="#0d0e16"/>
+  <rect width="1280" height="360" fill="url(#lamp)"/>
+  <rect width="1280" height="360" fill="url(#weave)"/>
+  <rect class="flicker" width="1280" height="360" fill="url(#glow)"/>
+  <path d="M430 0V360M860 0V360" stroke="#7a4a26" stroke-opacity=".18" stroke-width="5"/>
+  <path d="M0 344H1280" stroke="#7a4a26" stroke-opacity=".25" stroke-width="10"/>
+
+  <!-- The shadow figure: two props' shadows slide together into a mushroom. -->
+  <g transform="translate(930 190)" fill="#1e120b">
+    <g class="blurred" filter="url(#soft)" opacity=".85">
+      <g class="cap" style="transform-box: fill-box; transform-origin: center"><use href="#cap"/></g>
+      <g class="stem" style="transform-box: fill-box; transform-origin: center"><use href="#stem"/></g>
+    </g>
+    <g class="crisp" filter="url(#edge)">
+      <g class="cap" style="transform-box: fill-box; transform-origin: center"><use href="#cap"/></g>
+      <g class="stem" style="transform-box: fill-box; transform-origin: center"><use href="#stem"/></g>
+    </g>
+    <g class="gold" fill="none" stroke-linejoin="round">
+      <use href="#whole" stroke="#ffbe5a" stroke-opacity=".6" stroke-width="10" filter="url(#halo)"/>
+      <use href="#whole" stroke="#ffe2a0" stroke-width="3"/>
+    </g>
+    <text class="word" x="0" y="150" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="20" fill="#3a2214">“It just stood there, looking at me.”</text>
+  </g>
+
+  <g fill="#fff1cf">
+    <circle class="mote" cx="760" cy="300" r="1.6"/>
+    <circle class="mote m2" cx="820" cy="250" r="1.2"/>
+    <circle class="mote m3" cx="1080" cy="290" r="1.8"/>
+    <circle class="mote m4" cx="1150" cy="220" r="1.1"/>
+    <circle class="mote m5" cx="700" cy="200" r="1.3"/>
+    <circle class="mote m6" cx="1010" cy="320" r="1.4"/>
+    <circle class="mote m7" cx="890" cy="120" r="1"/>
+    <circle class="mote m8" cx="1200" cy="140" r="1.5"/>
+  </g>
+
+  <rect width="1280" height="360" fill="url(#vignette)"/>
+
+  <g font-family="Georgia, 'Iowan Old Style', 'Times New Roman', serif">
+    <text x="72" y="96" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="700" letter-spacing="4" fill="#ffb05a">CAMP PINECONE · AFTER LIGHTS OUT</text>
+    <text x="68" y="178" font-size="76" font-weight="700" fill="#f6ead2">Campfire</text>
+    <text x="68" y="254" font-size="76" font-weight="700" fill="#f6ead2">Confidential</text>
+    <text x="72" y="300" font-size="21" font-style="italic" fill="#e8d3ad">Every secret must be told in shadows.</text>
+  </g>
+</svg>
