@@ -143,10 +143,13 @@ export function createWallOverlay(): WallOverlay {
         ctx.strokeStyle = `rgba(255, 190, 90, ${0.55 * alpha})`;
         ctx.lineWidth = 10;
         outline(ctx, grid, place);
-        ctx.filter = "none";
+        // A light blur rounds off the grid's stair steps on the crisp line too.
+        ctx.filter = "blur(1.6px)";
+        ctx.lineJoin = "round";
         ctx.strokeStyle = `rgba(255, 226, 160, ${0.95 * alpha})`;
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 4;
         outline(ctx, grid, place);
+        ctx.filter = "none";
       }
       texture.needsUpdate = true;
     },

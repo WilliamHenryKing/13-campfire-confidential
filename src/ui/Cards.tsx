@@ -56,7 +56,7 @@ export function ToldCard({
   }, [shown, lines.length]);
   return (
     <section className="card card-told" aria-labelledby="told-title">
-      <p className="eyebrow">Told · {chapter.teller}'s secret</p>
+      <p className="eyebrow">Secret told · {chapter.teller}</p>
       <h2 id="told-title" className="story-title">
         {chapter.title}
       </h2>
