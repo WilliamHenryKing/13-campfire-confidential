@@ -42,8 +42,8 @@ export const CHAPTERS: readonly Chapter[] = [
     told: "Nobody has eaten it. Nobody is allowed to eat it.",
     pass: 0.8,
     props: [
-      { kind: "thermos", start: at(-0.9, 0.5, 1.4), solution: hang(0, 1.25, 2.2) },
-      { kind: "bowl", start: at(0.8, 0.6, 1.2), solution: hang(0, 1.8, 3.05) },
+      { kind: "thermos", start: at(-0.9, 1.0, 1.4), solution: hang(0, 1.25, 2.2) },
+      { kind: "bowl", start: at(0.8, 1.1, 1.2), solution: hang(0, 1.8, 3.05) },
     ],
   },
   {
@@ -56,9 +56,9 @@ export const CHAPTERS: readonly Chapter[] = [
     told: "The whistling was the kettle. The marshmallows are still missing.",
     pass: 0.72,
     props: [
-      { kind: "kettle", start: at(0.2, 0.5, 1.3), solution: hang(0.05, 1.35, 2.7) },
-      { kind: "spoon", start: at(-1.1, 0.8, 1.6), solution: hang(-0.46, 1.88, 2.4, 0, 2) },
-      { kind: "spoon", start: at(1.2, 0.9, 1.0), solution: hang(-0.04, 1.95, 2.4, 0, 1) },
+      { kind: "kettle", start: at(0.3, 0.9, 1.3), solution: hang(0.05, 1.35, 2.7) },
+      { kind: "spoon", start: at(-1.0, 1.1, 1.6), solution: hang(-0.46, 1.88, 2.4, 0, 2) },
+      { kind: "spoon", start: at(1.2, 1.2, 1.0), solution: hang(-0.04, 1.95, 2.4, 0, 1) },
     ],
   },
   {
@@ -71,8 +71,8 @@ export const CHAPTERS: readonly Chapter[] = [
     told: "It left a shiny trail straight to the dishwashing tub. Suspicious.",
     pass: 0.8,
     props: [
-      { kind: "boot", start: at(-0.7, 0.6, 1.3, 2), solution: hang(0, 1.2, 2.2) },
-      { kind: "pan", start: at(0.9, 0.9, 1.1, 2), solution: hang(0.55, 1.32, 2.6, 0, -1) },
+      { kind: "boot", start: at(-0.8, 1.0, 1.3, 2), solution: hang(0, 1.2, 2.2) },
+      { kind: "pan", start: at(0.9, 1.2, 1.1, 2), solution: hang(0.55, 1.32, 2.6, 0, -1) },
     ],
   },
   {
@@ -85,10 +85,10 @@ export const CHAPTERS: readonly Chapter[] = [
     told: "Case closed. The thermos came back in the morning, still warm.",
     pass: 0.74,
     props: [
-      { kind: "thermos", start: at(0.9, 0.5, 1.2), solution: hang(0, 1.5, 2.4) },
-      { kind: "pinecone", start: at(-1.0, 0.7, 1.5), solution: hang(0, 2.15, 1.9) },
-      { kind: "spoon", start: at(-0.3, 1.0, 1.0), solution: hang(-0.3, 0.98, 2.4, 0, 9) },
-      { kind: "spoon", start: at(0.4, 1.1, 0.9), solution: hang(0.3, 0.98, 2.4, 0, -9) },
+      { kind: "thermos", start: at(0.9, 0.9, 1.2), solution: hang(0, 1.5, 2.4) },
+      { kind: "pinecone", start: at(-1.0, 1.0, 1.5), solution: hang(0, 2.15, 1.9) },
+      { kind: "spoon", start: at(-0.35, 1.2, 1.0), solution: hang(-0.3, 0.98, 2.4, 0, 9) },
+      { kind: "spoon", start: at(0.35, 1.3, 0.9), solution: hang(0.3, 0.98, 2.4, 0, -9) },
     ],
   },
 ];

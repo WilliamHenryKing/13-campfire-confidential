@@ -33,7 +33,7 @@ export function canvasWeave(): CanvasTexture {
     ctx.fillRect(x, 0, 1, 256);
   }
   for (let i = 0; i < 40; i++) {
-    ctx.fillStyle = `rgba(110, 80, 40, ${r() * 0.05})`;
+    ctx.fillStyle = `rgba(110, 80, 40, ${r() * 0.018})`;
     ctx.beginPath();
     ctx.arc(r() * 256, r() * 256, 6 + r() * 26, 0, Math.PI * 2);
     ctx.fill();

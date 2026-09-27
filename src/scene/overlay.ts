@@ -109,19 +109,22 @@ export function createWallOverlay(): WallOverlay {
     tableau(figures, captions, reveal) {
       ctx.clearRect(0, 0, W, H);
       const n = figures.length;
-      const slot = (WALL.maxX - WALL.minX - 0.6) / Math.max(1, n);
+      // A 2 × 2 storyboard in the middle of the wall, so it reads on a phone as well.
+      const s = 0.45;
       figures.forEach((grid, k) => {
         const alpha = Math.max(0, Math.min(1, reveal * n - k));
         if (alpha <= 0) return;
-        const cx = WALL.minX + 0.3 + slot * (k + 0.5);
-        const s = slot / (2 * NORM_EXTENT) / 0.62;
-        const place = (u: number, v: number) => toCanvas(cx + u * s, 1.95 + v * s);
-        ctx.fillStyle = `rgba(38, 22, 14, ${0.86 * alpha})`;
+        const cx = k % 2 === 0 ? -1.0 : 1.0;
+        const cy = k < 2 ? 2.65 : 1.2;
+        const place = (u: number, v: number) => toCanvas(cx + u * s, cy + v * s);
+        ctx.filter = "blur(2.5px)";
+        ctx.fillStyle = `rgba(38, 22, 14, ${0.88 * alpha})`;
         fill(ctx, grid, place);
+        ctx.filter = "none";
         ctx.fillStyle = `rgba(70, 40, 22, ${alpha})`;
-        ctx.font = "italic 600 26px Georgia, 'Times New Roman', serif";
+        ctx.font = "italic 600 24px Georgia, 'Times New Roman', serif";
         ctx.textAlign = "center";
-        const [tx, ty] = toCanvas(cx, 0.72);
+        const [tx, ty] = toCanvas(cx, cy - 0.7);
         ctx.fillText(captions[k] ?? "", tx, ty);
       });
       texture.needsUpdate = true;

@@ -310,10 +310,10 @@ body {
 }
 
 .coach {
-  grid-row: 2;
-  align-self: end;
-  justify-self: center;
-  max-width: 520px;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  max-width: 360px;
   padding: 12px 14px;
   font-size: 13px;
   line-height: 1.45;
@@ -381,10 +381,14 @@ body {
   }
   .card-end {
     align-self: end;
-    max-height: 55vh;
+    max-height: 46vh;
     padding: 16px 18px;
   }
   .coach {
+    grid-row: 2;
+    align-self: end;
+    justify-self: stretch;
+    max-width: none;
     font-size: 12px;
   }
 }

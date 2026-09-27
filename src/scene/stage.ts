@@ -36,7 +36,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   const renderer = new WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 0.95;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
@@ -52,7 +52,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
 
   scene.add(new HemisphereLight("#44507a", "#2a1f16", 0.55));
 
-  const key = new SpotLight("#ffb46a", 95, 0, 1.02, 0.55, 2);
+  const key = new SpotLight("#ffbf80", 75, 0, 1.02, 0.55, 2);
   key.position.set(...LAMP);
   key.target.position.set(0, 1.55, 0);
   key.castShadow = true;
@@ -97,13 +97,13 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     const aspect = w / h;
     const portrait = aspect < 0.9;
     camera.aspect = aspect;
-    camera.fov = portrait ? 56 : 38;
-    // Keep the middle of the tent wall in frame at any aspect.
-    const want = portrait ? 4.1 : 7.4;
+    camera.fov = portrait ? 60 : 42;
+    // Keep the middle of the tent wall and the hanging props in frame at any aspect.
+    const want = portrait ? 4.4 : 7.6;
     const halfV = Math.tan(((camera.fov / 2) * Math.PI) / 180);
-    const dist = Math.max(8.2, want / 2 / (halfV * aspect) + 0.6);
-    camera.position.set(portrait ? 0.35 : 1.3, portrait ? 2.25 : 2.1, dist);
-    camera.lookAt(0, portrait ? 1.45 : 1.6, 0.6);
+    const dist = Math.max(9.6, want / 2 / (halfV * aspect) + 1.2);
+    camera.position.set(portrait ? 0.4 : 1.5, portrait ? 2.9 : 2.7, dist);
+    camera.lookAt(0, portrait ? 1.25 : 1.35, 1.2);
     camera.updateProjectionMatrix();
   };
   fit();
@@ -132,7 +132,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
         const flicker = reducedMotion
           ? 1
           : 1 + 0.035 * Math.sin(t * 0.011) + 0.02 * Math.sin(t * 0.027 + 1.3);
-        key.intensity = 95 * glow * flicker;
+        key.intensity = 75 * glow * flicker;
         fill.intensity = 3.2 * glow * flicker;
         (glass.material as MeshStandardMaterial).emissiveIntensity = 2.4 * glow * flicker;
         renderer.render(scene, camera);
