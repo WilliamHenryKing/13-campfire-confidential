@@ -55,8 +55,15 @@ export function placedProps(state: GameState): PlacedProp[] {
   return ch.props.map((p, i) => ({ kind: p.kind, at: state.placements[i] ?? p.start }));
 }
 
+let lastEval: { placements: Placement[]; chapter: number; ev: Evaluation } | null = null;
+
+/** Evaluate the current figure; cached on the placements array, which actions replace. */
 export function evaluateState(state: GameState): Evaluation {
-  return evaluate(placedProps(state), targetFor(chapterAt(state.chapter)));
+  if (lastEval && lastEval.placements === state.placements && lastEval.chapter === state.chapter)
+    return lastEval.ev;
+  const ev = evaluate(placedProps(state), targetFor(chapterAt(state.chapter)));
+  lastEval = { placements: state.placements, chapter: state.chapter, ev };
+  return ev;
 }
 
 function wrap(n: number, m: number) {

@@ -11,6 +11,7 @@ import {
   STEP,
 } from "../src/game/state";
 import type { Placement } from "../src/game/types";
+import { adviceText, likenessWord, propNames } from "../src/game/words";
 
 const radiusOf = (state: GameState) => (i: number) =>
   PROPS[chapterAt(state.chapter).props[i]?.kind ?? "thermos"].radius;
@@ -188,5 +189,30 @@ describe("game loop", () => {
   test("evaluation of the start state gives advice", () => {
     const s = act(initialState(), { type: "start" });
     expect(evaluateState(s).advice.kind).not.toBe("close");
+  });
+});
+
+describe("words", () => {
+  test("twins are numbered so advice can name them", () => {
+    expect(propNames(["kettle", "spoon", "spoon"])).toEqual([
+      "Kettle",
+      "Wooden spoon 1",
+      "Wooden spoon 2",
+    ]);
+  });
+
+  test("advice reads as a plain instruction", () => {
+    const names = ["Thermos", "Enamel bowl"];
+    expect(adviceText({ kind: "move", index: 1, dx: -1, dy: 1 }, names)).toBe(
+      "Move the enamel bowl's shadow up and to the left, next to the others.",
+    );
+    expect(adviceText({ kind: "size", index: 0, grow: true }, names)).toContain("toward the lamp");
+    expect(adviceText({ kind: "offwall", index: 0 }, names)).toContain("off the tent");
+  });
+
+  test("the likeness word celebrates only a pass", () => {
+    expect(likenessWord(0.81, 0.8)).toBe("That's it!");
+    expect(likenessWord(0.79, 0.8)).toBe("So close");
+    expect(likenessWord(0.1, 0.8)).toBe("Just shadows");
   });
 });

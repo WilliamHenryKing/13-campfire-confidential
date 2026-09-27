@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>CAMPFIRE CONFIDENTIAL</title>
     <meta name="description" content="Arrange camping objects so their shadows tell a requested story" />
+    <meta name="theme-color" content="#0d0e16" />
     <style>
-      /* Arrival veil: shown until worldReady() in src/loader.ts lifts it. Restyle to the art direction. */
-      #arrival { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; align-content: center; gap: 18px; background: #0d0f14; color: #f2efe6; font: 600 13px/1.2 system-ui, sans-serif; letter-spacing: 0.2em; text-transform: uppercase; transition: opacity 0.6s ease, visibility 0.6s; }
+      /* Arrival veil: shown until worldReady() in src/loader.ts lifts it. A lantern glowing on canvas. */
+      #arrival { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; align-content: center; gap: 22px; background: radial-gradient(ellipse at 50% 58%, #3a2415 0%, #17121a 46%, #0d0e16 100%); color: #f3e3c2; font: 600 12px/1.2 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0.28em; text-transform: uppercase; transition: opacity 0.7s ease, visibility 0.7s; }
       #arrival.is-done { opacity: 0; visibility: hidden; }
-      #arrival .bar { width: 140px; height: 2px; background: #ffffff22; overflow: hidden; }
-      #arrival .bar i { display: block; height: 100%; width: 40%; background: currentColor; animation: arrival-slide 1.2s ease-in-out infinite; }
-      @keyframes arrival-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
-      @media (prefers-reduced-motion: reduce) { #arrival .bar i { animation: none; width: 100%; } }
+      #arrival .flame { width: 18px; height: 26px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: radial-gradient(circle at 50% 70%, #fff3cf 0%, #ffb24f 45%, #e0621a 100%); box-shadow: 0 0 40px 14px #ff9a3c55, 0 0 120px 40px #ff8a2a22; animation: arrival-flicker 1.6s ease-in-out infinite alternate; }
+      #arrival .name { font: 700 22px/1.1 Georgia, "Times New Roman", serif; letter-spacing: 0.08em; }
+      #arrival .sub { color: #cdb995; font-size: 11px; }
+      @keyframes arrival-flicker { 0% { transform: scale(1) rotate(-2deg); opacity: 0.92; } 50% { transform: scale(1.06, 0.96) rotate(2deg); opacity: 1; } 100% { transform: scale(0.97, 1.04) rotate(-1deg); opacity: 0.95; } }
+      @media (prefers-reduced-motion: reduce) { #arrival .flame { animation: none; } #arrival { transition: none; } }
     </style>
   </head>
   <body>
-    <div id="arrival" role="status" aria-live="polite"><span>CAMPFIRE CONFIDENTIAL</span><div class="bar"><i></i></div></div>
+    <div id="arrival" role="status" aria-live="polite"><div class="flame" aria-hidden="true"></div><span class="name">Campfire Confidential</span><span class="sub">Lighting the lantern…</span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
