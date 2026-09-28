@@ -76,20 +76,36 @@ Same bookmarks, the same pose and the same SwiftShader renderer, on the high tie
 
 Overall mean: **1.7 → 3.0** (tech demo → competent indie).
 
+### Round 2 (review on a real GPU: "the tent reads as a flat panel")
+
+The play camera (and hero bookmark) moved slightly off-axis. The roof now overhangs both ends
+and catches the lantern, the sky is lifted to about 1/100 of the lit canvas so the pines
+silhouette against it, and the fog takes the sky's colour. Current captures:
+`docs/visual/captures/after/`.
+
+| Bookmark | L | M | D | E | A | C | X | U | Mean | Round 1 | Baseline |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| establishing | 3 | 3 | 3 | 4 | 4 | 4 | 3 | 3 | **3.4** | 2.9 | 1.3 |
+| hero | 4 | 3 | 3 | 4 | 4 | 4 | 3 | 3 | **3.5** | 3.1 | 2.0 |
+| closeup | 3 | 3 | 3 | 2 | 3 | 3 | 3 | 3 | **2.9** | 2.9 | 1.5 |
+| grazing | 3 | 4 | 3 | 3 | 3 | 3 | 4 | 3 | **3.3** | 3.3 | 1.6 |
+| phone-hero | 4 | 3 | 2 | 3 | 4 | 3 | 3 | 3 | **3.1** | 3.0 | 2.0 |
+
+Overall mean: **1.7 → 3.0 → 3.2**.
+
 ### Luminance targets for the hero (8-bit luma of the capture)
 
 The game lives on one relationship: a lantern-warm screen against a dark night, with a shadow
-darker than anything else. These values were measured on `after/hero.png` and must hold after
-any future grading change.
+darker than anything else. These values were measured on the round-2 `after/hero.png` and must hold
+after any future grading change.
 
 | Region | Target | Measured |
 | --- | --- | --- |
-| Wall centre, beside the figure | 130–175 | 142 |
-| Wall edge (lamp falloff) | 70–110 | 86 |
-| Shadow figure (umbra) | ≤ 8 | 1 |
-| Night sky and forest | ≤ 12 | 0 |
-| Ground at mid-distance | 8–30 | 13 |
-| Ground at the lantern's foot | 100–170 | 149 |
+| Wall centre, beside the figure | 130–175 | 160 |
+| Wall edge (lamp falloff and vignette, far corner) | 45–110 | 53 |
+| Shadow figure (umbra) | ≤ 8 | 2 |
+| Night sky and forest | ≤ 12 | 2 |
+| Ground between lantern and tent | 40–110 | 80 |
 
 Exposure is the only brightness control (`EXPOSURE` in `src/scene/stage.ts`). The first
 "after" pass at 0.95 measured a wall centre of 116, which read flat, so it was raised to 1.45.
@@ -118,9 +134,9 @@ Exposure is the only brightness control (`EXPOSURE` in `src/scene/stage.ts`). Th
 
 ### Remaining flaws (three most visible per bookmark)
 
-- **establishing:** (1) the pines are lost in darkness, with no moonlit rim to separate them
-  from the sky; (2) the tent is a clean box with no roof overhang, ridge sag or
-  door; (3) the log's end grain reads dark, like a pipe.
+- **establishing:** (1) the side and roof panels are flat, without the sag and seams the
+  screen has; (2) the tent has no door, ties or stakes loops, so it reads as new; (3) the
+  log's end grain reads dark, like a pipe.
 - **hero:** (1) the canvas reads smooth at this distance, because the weave only appears at
   grazing angles; (2) the strings are thin, aliased lines; (3) the ground outside the lamp pool
   falls to flat black.
