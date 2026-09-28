@@ -13,7 +13,7 @@ import type { Bookmark } from "./bookmarks";
 import { buildCampsite } from "./campsite";
 import { createDust } from "./dust";
 import { buildLantern } from "./lantern";
-import { detectTier, Pipeline } from "./pipeline";
+import { detectTier, forcedTier, Pipeline } from "./pipeline";
 import { texturesLoaded } from "./textures";
 
 // Renderer, camera and light. The lantern is the one key light: a point light at exactly the
@@ -24,7 +24,7 @@ import { texturesLoaded } from "./textures";
 const LANTERN_CD = 80;
 /** Clear moonless sky, scaled so the canvas lit by the lantern is ~300× brighter than the sky. */
 const SKY = 0.0035;
-const EXPOSURE = 0.95;
+const EXPOSURE = 1.45;
 
 export interface Stage {
   scene: Scene;
@@ -124,6 +124,27 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   const ro = new ResizeObserver(fit);
   ro.observe(host);
 
+  // Adaptive quality: if frames stay slower than ~60 fps for two seconds, shed a pass.
+  const adaptive = forcedTier() === null;
+  let slowSince = -1;
+  let lastNow = -1;
+  let startedAt = -1;
+  const watchFrameTime = (now: number) => {
+    if (startedAt < 0) startedAt = now;
+    const dt = lastNow < 0 ? 0 : now - lastNow;
+    lastNow = now;
+    // Ignore the first seconds (shader compiles) and hidden-tab gaps.
+    if (!adaptive || now - startedAt < 4000 || dt > 250) return;
+    if (dt > 18) {
+      if (slowSince < 0) slowSince = now;
+      else if (now - slowSince > 2000) {
+        pipeline.degrade();
+        slowSince = -1;
+        startedAt = now - 3000; // let the lighter frame settle before judging again
+      }
+    } else slowSince = -1;
+  };
+
   let raf = 0;
   let glow = 1;
   let frozenAt: number | null = null;
@@ -160,6 +181,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
       renderer.shadowMap.needsUpdate = true;
       const loop = (now: number) => {
         raf = requestAnimationFrame(loop);
+        watchFrameTime(now);
         const t = frozenAt ?? now;
         onFrame(t);
         dust.tick(t);

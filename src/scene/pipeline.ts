@@ -61,9 +61,15 @@ type VisibilityPatched = { _overrideVisibility(): void; _visibilityCache: Object
 export type Tier = "high" | "low";
 
 /** Phones and small touch screens get the light tier: no GTAO, smaller buffers. */
-export function detectTier(): Tier {
+/** A tier chosen in the URL (?tier=high|low) is fixed: captures must not change mid-run. */
+export function forcedTier(): Tier | null {
   const forced = new URLSearchParams(window.location.search).get("tier");
-  if (forced === "low" || forced === "high") return forced;
+  return forced === "low" || forced === "high" ? forced : null;
+}
+
+export function detectTier(): Tier {
+  const forced = forcedTier();
+  if (forced) return forced;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const small = Math.min(window.innerWidth, window.innerHeight) < 700;
   return coarse || small ? "low" : "high";
@@ -160,6 +166,24 @@ export class Pipeline {
 
   render() {
     this.composer.render();
+  }
+
+  /**
+   * Adaptive quality: shed the heaviest pass first. Returns false once nothing is left to drop.
+   * Step 1 turns GTAO off; step 2 lowers the pixel ratio to 1.
+   */
+  degrade(): boolean {
+    if (this.ao?.enabled) {
+      this.ao.enabled = false;
+      return true;
+    }
+    if (this.pixelRatio > 1) {
+      this.pixelRatio = 1;
+      const size = this.renderer.getSize(new Vector2());
+      this.setSize(size.x, size.y);
+      return true;
+    }
+    return false;
   }
 
   dispose() {

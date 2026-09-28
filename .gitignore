@@ -13,3 +13,4 @@ output/
 assets-src/studio/
 test-results/
 playwright-report/
+.readme-frames/
