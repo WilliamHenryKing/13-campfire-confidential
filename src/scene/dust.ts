@@ -1,5 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, PointsMaterial } from "three";
 import { LAMP } from "../game/shadow";
+import { softDot } from "./textures";
 
 // Dust motes drifting in the lantern beam: a few hundred additive points inside the cone
 // between lamp and tent. Still (and fewer) under reduced motion.
@@ -26,9 +27,10 @@ export function createDust(reducedMotion: boolean): Dust {
   const geometry = new BufferGeometry();
   const material = new PointsMaterial({
     color: "#ffd9a8",
-    size: 0.018,
+    map: softDot(),
+    size: 0.022,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.35,
     depthWrite: false,
     blending: AdditiveBlending,
   });

@@ -1,117 +1,109 @@
 import {
-  ACESFilmicToneMapping,
-  Color,
-  CylinderGeometry,
-  Fog,
+  EquirectangularReflectionMapping,
+  FogExp2,
   Group,
-  HemisphereLight,
-  Mesh,
-  MeshStandardMaterial,
-  PCFShadowMap,
   PerspectiveCamera,
+  PMREMGenerator,
   PointLight,
   Scene,
-  SpotLight,
-  WebGLRenderer,
 } from "three";
+import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { LAMP } from "../game/shadow";
 import type { Bookmark } from "./bookmarks";
 import { buildCampsite } from "./campsite";
 import { createDust } from "./dust";
+import { buildLantern } from "./lantern";
+import { detectTier, Pipeline } from "./pipeline";
+import { texturesLoaded } from "./textures";
 
-// Renderer, camera and light. The spotlight sits exactly at the rules' lamp position so the
-// shadow drawn by three.js is the shadow the game judges.
+// Renderer, camera and light. The lantern is the one key light: a point light at exactly the
+// rules' lamp position, so the shadow drawn by three.js is the shadow the game judges. A dim
+// night sky HDRI lights everything else and is the visible background.
+
+/** Gas-mantle lantern, about 1000 lm: roughly 80 cd in every direction. */
+const LANTERN_CD = 80;
+/** Clear moonless sky, scaled so the canvas lit by the lantern is ~300× brighter than the sky. */
+const SKY = 0.0035;
+const EXPOSURE = 0.95;
 
 export interface Stage {
-  renderer: WebGLRenderer;
   scene: Scene;
   camera: PerspectiveCamera;
   props: Group;
+  dom: HTMLCanvasElement;
   /** Mark shadows dirty after props move. */
   invalidate(): void;
   start(onFrame: (t: number) => void, onFirst: () => void): void;
   setGlow(level: number): void;
-  /** Override the game camera (captures); null returns to the responsive framing. */
   setView(view: Bookmark | null): void;
-  /** Stop time-driven motion (flicker, dust, swing) at a fixed instant. */
   setFrozen(frozen: boolean): void;
-  /** Resolves after the given number of rendered frames. */
   frames(n: number): Promise<void>;
+  /** Resolves when the environment map and every texture have loaded. */
+  loaded: Promise<void>;
+  rendererName(): string;
   dispose(): void;
 }
 
 export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
-  const renderer = new WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.95;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = PCFShadowMap;
-  renderer.shadowMap.autoUpdate = false;
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(40, 1, 0.05, 80);
+  const tier = detectTier();
+
+  const dust = createDust(reducedMotion);
+  const pipeline = new Pipeline(scene, camera, tier, () => [dust.object]);
+  const renderer = pipeline.renderer;
+  renderer.toneMappingExposure = EXPOSURE;
   renderer.domElement.setAttribute("aria-hidden", "true");
   renderer.domElement.style.touchAction = "none";
   host.append(renderer.domElement);
 
-  const scene = new Scene();
-  scene.background = new Color("#0b0d16");
-  scene.fog = new Fog("#0b0d16", 11, 26);
+  // Aerial perspective at night: distant pines sink into the sky's own colour.
+  scene.fog = new FogExp2("#05070c", 0.045);
 
-  const camera = new PerspectiveCamera(40, 1, 0.1, 60);
+  const lamp = new PointLight("#ffb068", LANTERN_CD, 0, 2);
+  lamp.position.set(...LAMP);
+  lamp.castShadow = true;
+  const size = tier === "high" ? 2048 : 1024;
+  lamp.shadow.mapSize.set(size, size);
+  lamp.shadow.camera.near = 0.1;
+  lamp.shadow.camera.far = 14;
+  lamp.shadow.bias = -0.002;
+  lamp.shadow.normalBias = 0.015;
+  // The mantle is ~3 cm across: a small penumbra.
+  lamp.shadow.radius = 3;
+  scene.add(lamp);
 
-  // Low ambient keeps the umbra dark, so the figure reads clearly on the bright canvas.
-  scene.add(new HemisphereLight("#44507a", "#2a1f16", 0.26));
-
-  const key = new SpotLight("#ffbf80", 80, 0, 1.02, 0.6, 2);
-  key.position.set(...LAMP);
-  key.target.position.set(0, 1.55, 0);
-  key.castShadow = true;
-  const big = Math.min(window.innerWidth, window.innerHeight) > 600;
-  key.shadow.mapSize.set(big ? 4096 : 2048, big ? 4096 : 2048);
-  key.shadow.camera.near = 0.3;
-  key.shadow.camera.far = 9;
-  key.shadow.bias = -0.0004;
-  key.shadow.normalBias = 0.01;
-  key.shadow.radius = 2;
-  scene.add(key, key.target);
-
-  // Warm spill on the lantern and nearby grass only; it stops short of the tent wall.
-  const fill = new PointLight("#ff9b4a", 3.2, 3.6, 2);
-  fill.position.set(LAMP[0], LAMP[1] + 0.25, LAMP[2] + 0.2);
-  scene.add(fill);
-
-  const glass = new Mesh(
-    new CylinderGeometry(0.07, 0.07, 0.16, 20),
-    new MeshStandardMaterial({ color: "#ffd9a0", emissive: "#ffb25e", emissiveIntensity: 2.4 }),
-  );
-  glass.position.set(...LAMP);
-  const lanternBody = new Group();
-  const dark = new MeshStandardMaterial({ color: "#23201d", roughness: 0.6, metalness: 0.4 });
-  const base = new Mesh(new CylinderGeometry(0.09, 0.1, 0.06, 20), dark);
-  base.position.set(LAMP[0], LAMP[1] - 0.11, LAMP[2]);
-  const cap = new Mesh(new CylinderGeometry(0.02, 0.1, 0.08, 20), dark);
-  cap.position.set(LAMP[0], LAMP[1] + 0.12, LAMP[2]);
-  const foot = new Mesh(new CylinderGeometry(0.035, 0.05, LAMP[1] - 0.14, 12), dark);
-  foot.position.set(LAMP[0], (LAMP[1] - 0.14) / 2, LAMP[2]);
-  lanternBody.add(glass, base, cap, foot);
-  scene.add(lanternBody);
-
-  const campsite = buildCampsite();
-  scene.add(campsite);
+  const lantern = buildLantern();
+  scene.add(lantern.group);
+  scene.add(buildCampsite());
 
   const props = new Group();
   scene.add(props);
-
-  const dust = createDust(reducedMotion);
   scene.add(dust.object);
+
+  const pmrem = new PMREMGenerator(renderer);
+  const env = new HDRLoader()
+    .loadAsync(`${import.meta.env.BASE_URL}textures/kloppenheim_02_puresky_1k.hdr`)
+    .then((hdr) => {
+      hdr.mapping = EquirectangularReflectionMapping;
+      scene.environment = pmrem.fromEquirectangular(hdr).texture;
+      scene.environmentIntensity = SKY;
+      scene.background = hdr;
+      scene.backgroundIntensity = SKY;
+      scene.backgroundBlurriness = 0.02;
+      renderer.shadowMap.needsUpdate = true;
+    })
+    .catch(() => undefined);
+  const loaded = Promise.all([env, texturesLoaded()]).then(() => undefined);
 
   let view: Bookmark | null = null;
   const fit = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
-    renderer.setSize(w, h);
+    pipeline.setSize(w, h);
     const aspect = w / h;
+    camera.aspect = aspect;
     if (view) {
-      camera.aspect = aspect;
       camera.fov = view.fov;
       camera.position.set(...view.pos);
       camera.lookAt(...view.target);
@@ -119,7 +111,6 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
       return;
     }
     const portrait = aspect < 0.9;
-    camera.aspect = aspect;
     camera.fov = portrait ? 58 : 40;
     // Frame the middle of the tent, where the figures form, so the shadows fill the view.
     const want = portrait ? 4.0 : 5.4;
@@ -138,10 +129,11 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   let frozenAt: number | null = null;
   const waiters: { left: number; done: () => void }[] = [];
   return {
-    renderer,
     scene,
     camera,
     props,
+    dom: renderer.domElement,
+    loaded,
     invalidate() {
       renderer.shadowMap.needsUpdate = true;
     },
@@ -158,6 +150,11 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     frames(n) {
       return new Promise((done) => waiters.push({ left: n, done }));
     },
+    rendererName() {
+      const gl = renderer.getContext();
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      return String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    },
     start(onFrame, onFirst) {
       let first = true;
       renderer.shadowMap.needsUpdate = true;
@@ -166,13 +163,13 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
         const t = frozenAt ?? now;
         onFrame(t);
         dust.tick(t);
+        // A pressure lantern breathes a little; the mantle and its light move together.
         const flicker = reducedMotion
           ? 1
-          : 1 + 0.035 * Math.sin(t * 0.011) + 0.02 * Math.sin(t * 0.027 + 1.3);
-        key.intensity = 80 * glow * flicker;
-        fill.intensity = 3.2 * glow * flicker;
-        (glass.material as MeshStandardMaterial).emissiveIntensity = 2.4 * glow * flicker;
-        renderer.render(scene, camera);
+          : 1 + 0.025 * Math.sin(t * 0.011) + 0.015 * Math.sin(t * 0.027 + 1.3);
+        lamp.intensity = LANTERN_CD * glow * flicker;
+        lantern.mantle.emissiveIntensity = 60 * glow * flicker;
+        pipeline.render();
         if (first) {
           first = false;
           onFirst();
@@ -190,7 +187,8 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     dispose() {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      renderer.dispose();
+      pmrem.dispose();
+      pipeline.dispose();
       renderer.domElement.remove();
     },
   };

@@ -1,14 +1,87 @@
-import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from "three";
+import {
+  CanvasTexture,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  NoColorSpace,
+  RepeatWrapping,
+  SRGBColorSpace,
+  type Texture,
+  TextureLoader,
+} from "three";
 
-// Small procedural textures: woven canvas for the tent and a trampled grass floor.
+// Sourced CC0 PBR sets (public/textures/<set>/, see assets.manifest.json): colour in sRGB,
+// normal and ARM (AO · roughness · metalness) linear. Every load is tracked so captures can
+// wait for a fully textured frame.
 
-function canvas(size: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
-  const c = document.createElement("canvas");
-  c.width = size;
-  c.height = size;
-  const ctx = c.getContext("2d");
-  if (!ctx) throw new Error("2D canvas unavailable");
-  return [c, ctx];
+export type PbrSet = { colour: Texture; normal: Texture; arm: Texture };
+
+const loader = new TextureLoader();
+const cache = new Map<string, Texture>();
+const pending: Promise<unknown>[] = [];
+/** Clones waiting for their original's image: they upload only once flagged themselves. */
+const followers = new Map<Texture, Texture[]>();
+const base = `${import.meta.env.BASE_URL}textures/`;
+
+function load(url: string, colour: boolean): Texture {
+  const key = `${url}|${colour}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  let done: (v: unknown) => void = () => {};
+  pending.push(new Promise((r) => (done = r)));
+  const texture = loader.load(
+    url,
+    (t) => {
+      for (const c of followers.get(t) ?? []) c.needsUpdate = true;
+      followers.delete(t);
+      done(null);
+    },
+    undefined,
+    done,
+  );
+  texture.colorSpace = colour ? SRGBColorSpace : NoColorSpace;
+  texture.wrapS = texture.wrapT = RepeatWrapping;
+  texture.anisotropy = 8;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.name = url.split("/").slice(-1)[0] ?? url;
+  cache.set(key, texture);
+  return texture;
+}
+
+/** A set's three maps; clones share the image but carry their own repeat and offset. */
+export function pbrSet(name: string): PbrSet {
+  const stem = `${base}${name}/${name}`;
+  return {
+    colour: load(`${stem}_diff.webp`, true),
+    normal: load(`${stem}_nor.webp`, false),
+    arm: load(`${stem}_arm.webp`, false),
+  };
+}
+
+export function paintMask(): Texture {
+  return load(`${base}rusty_painted_metal/rusty_painted_metal_paint.webp`, false);
+}
+
+/** Same images, own tiling: for surfaces that need a different real-world scale. */
+export function tiled(set: PbrSet, repeatU: number, repeatV = repeatU, rotation = 0): PbrSet {
+  const one = (t: Texture) => {
+    const c = t.clone();
+    c.repeat.set(repeatU, repeatV);
+    c.rotation = rotation;
+    const img = t.image as HTMLImageElement | undefined;
+    if (!(img?.complete && img.naturalWidth > 0)) {
+      // copy() marks the clone for upload; hold it until the shared image has arrived.
+      c.version = 0;
+      followers.set(t, [...(followers.get(t) ?? []), c]);
+    }
+    return c;
+  };
+  return { colour: one(set.colour), normal: one(set.normal), arm: one(set.arm) };
+}
+
+/** Resolves when every texture requested so far has decoded. */
+export function texturesLoaded(): Promise<void> {
+  return Promise.all(pending).then(() => undefined);
 }
 
 function seeded(seed: number) {
@@ -19,51 +92,53 @@ function seeded(seed: number) {
   };
 }
 
-export function canvasWeave(): CanvasTexture {
-  const [c, ctx] = canvas(256);
-  const r = seeded(3);
-  ctx.fillStyle = "#e9d8b4";
-  ctx.fillRect(0, 0, 256, 256);
-  for (let y = 0; y < 256; y += 2) {
-    ctx.fillStyle = `rgba(120, 90, 50, ${0.05 + r() * 0.06})`;
-    ctx.fillRect(0, y, 256, 1);
-  }
-  for (let x = 0; x < 256; x += 2) {
-    ctx.fillStyle = `rgba(255, 245, 225, ${0.04 + r() * 0.06})`;
-    ctx.fillRect(x, 0, 1, 256);
-  }
-  for (let i = 0; i < 40; i++) {
-    ctx.fillStyle = `rgba(110, 80, 40, ${r() * 0.018})`;
-    ctx.beginPath();
-    ctx.arc(r() * 256, r() * 256, 6 + r() * 26, 0, Math.PI * 2);
-    ctx.fill();
+/** Low-frequency value noise for macro colour variation that breaks up tiling. */
+export function macroNoise(size = 256): CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("2D canvas unavailable");
+  const r = seeded(11);
+  ctx.fillStyle = "#808080";
+  ctx.fillRect(0, 0, size, size);
+  for (let i = 0; i < 260; i++) {
+    const x = r() * size;
+    const y = r() * size;
+    const rad = size * (0.04 + r() * 0.16);
+    const v = Math.floor(r() * 255);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
+    g.addColorStop(0, `rgba(${v},${v},${v},0.35)`);
+    g.addColorStop(1, `rgba(${v},${v},${v},0)`);
+    ctx.fillStyle = g;
+    for (const dx of [-size, 0, size])
+      for (const dy of [-size, 0, size]) {
+        ctx.save();
+        ctx.translate(dx, dy);
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
   }
   const tex = new CanvasTexture(c);
-  tex.wrapS = RepeatWrapping;
-  tex.wrapT = RepeatWrapping;
-  tex.colorSpace = SRGBColorSpace;
-  tex.anisotropy = 4;
+  tex.wrapS = tex.wrapT = RepeatWrapping;
+  tex.colorSpace = NoColorSpace;
   return tex;
 }
 
-export function grass(): CanvasTexture {
-  const [c, ctx] = canvas(256);
-  const r = seeded(9);
-  ctx.fillStyle = "#39402a";
-  ctx.fillRect(0, 0, 256, 256);
-  for (let i = 0; i < 2400; i++) {
-    const g = 50 + r() * 50;
-    ctx.strokeStyle = `rgba(${g + 20}, ${g + 40}, ${g - 10}, 0.5)`;
-    const x = r() * 256;
-    const y = r() * 256;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + (r() - 0.5) * 4, y - 3 - r() * 5);
-    ctx.stroke();
-  }
+/** Soft round sprite for dust motes. */
+export function softDot(): CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("2D canvas unavailable");
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.45)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
   const tex = new CanvasTexture(c);
-  tex.wrapS = RepeatWrapping;
-  tex.wrapT = RepeatWrapping;
   tex.colorSpace = SRGBColorSpace;
   return tex;
 }
