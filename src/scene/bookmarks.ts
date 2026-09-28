@@ -19,8 +19,8 @@ export const BOOKMARKS: Record<string, Bookmark> = {
   },
   /** Hero: the play camera, the figure on the canvas. */
   hero: {
-    pos: [1.1, 2.45, 8.4],
-    target: [0, 1.5, 1.0],
+    pos: [2.3, 2.35, 8.4],
+    target: [0.15, 1.7, 0.6],
     fov: 40,
     viewport: { width: 1440, height: 900 },
   },
@@ -40,8 +40,8 @@ export const BOOKMARKS: Record<string, Bookmark> = {
   },
   /** Phone portrait of the hero. */
   "phone-hero": {
-    pos: [0.35, 2.8, 9.6],
-    target: [0, 1.3, 1.0],
+    pos: [0.9, 2.8, 9.6],
+    target: [0.1, 1.35, 1.0],
     fov: 58,
     viewport: { width: 390, height: 844 },
   },

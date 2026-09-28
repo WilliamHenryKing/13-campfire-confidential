@@ -116,10 +116,20 @@ export function buildCampsite(): Group {
   // Front end wall: the screen. It never casts, so it cannot shadow itself.
   site.add(endWall(0, canvas, upper));
   site.add(endWall(-DEPTH, canvas, upper));
+  const OVERHANG = 0.45;
   for (const side of [-1, 1]) {
     const x = side * h;
     site.add(quad([x, 0, 0], [x, 0, -DEPTH], [x, EAVE, -DEPTH], [x, EAVE, 0], canvas));
-    site.add(quad([x, EAVE, 0], [x, EAVE, -DEPTH], [0, PEAK, -DEPTH], [0, PEAK, 0], upper));
+    // The roof runs past both end walls, so its underside catches the lantern above the screen.
+    site.add(
+      quad(
+        [x * 1.04, EAVE - 0.06, OVERHANG],
+        [x * 1.04, EAVE - 0.06, -DEPTH - OVERHANG],
+        [0, PEAK, -DEPTH - OVERHANG],
+        [0, PEAK, OVERHANG],
+        upper,
+      ),
+    );
   }
 
   // Seams and a hem strip: the same canvas, doubled, catching light a little differently.
@@ -145,7 +155,7 @@ export function buildCampsite(): Group {
   // The centre poles stand inside the tent, behind the screen.
   site.add(pole([0, 0, -0.12], [0, PEAK + 0.05, -0.12], 0.05, wood));
   site.add(pole([0, 0, -DEPTH + 0.12], [0, PEAK + 0.05, -DEPTH + 0.12], 0.05, wood));
-  site.add(pole([0, PEAK + 0.04, 0.3], [0, PEAK + 0.04, -DEPTH - 0.3], 0.045, wood));
+  site.add(pole([0, PEAK + 0.04, 0.6], [0, PEAK + 0.04, -DEPTH - 0.6], 0.045, wood));
 
   // Guy lines from the eaves to pegs in the ground.
   const rope = scanned("rough_linen", "guy-rope", "#bba98a", 4, 0.5);
@@ -178,6 +188,11 @@ export function buildCampsite(): Group {
   log.receiveShadow = true;
   site.add(log);
 
-  site.add(buildScatter({ minX: -h - 0.1, maxX: h + 0.1, minZ: -DEPTH - 0.1, maxZ: 0.1 }));
   return site;
+}
+
+/** Stones, twigs, cones and pines: built after arrival, outside the tent's footprint. */
+export function buildSetDressing(): Group {
+  const h = TENT_W / 2;
+  return buildScatter({ minX: -h - 0.1, maxX: h + 0.1, minZ: -DEPTH - 0.1, maxZ: 0.1 });
 }

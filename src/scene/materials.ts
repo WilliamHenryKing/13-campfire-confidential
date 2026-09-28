@@ -155,7 +155,8 @@ export function chippedPaint(tint: string, name: string, chips = "#2c2a27", glos
         metalnessFactor = mix( 0.85, metalnessFactor, paintLeft );`,
       );
   };
-  m.customProgramCacheKey = () => `chipped-${name}`;
+  // Same shader for every paint colour: one program, compiled once.
+  m.customProgramCacheKey = () => "chipped-paint";
   return m;
 }
 

@@ -10,7 +10,7 @@ import {
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { LAMP } from "../game/shadow";
 import type { Bookmark } from "./bookmarks";
-import { buildCampsite } from "./campsite";
+import { buildCampsite, buildSetDressing } from "./campsite";
 import { createDust } from "./dust";
 import { buildLantern } from "./lantern";
 import { detectTier, forcedTier, Pipeline } from "./pipeline";
@@ -22,8 +22,8 @@ import { texturesLoaded } from "./textures";
 
 /** Gas-mantle lantern, about 1000 lm: roughly 80 cd in every direction. */
 const LANTERN_CD = 80;
-/** Clear moonless sky, scaled so the canvas lit by the lantern is ~300× brighter than the sky. */
-const SKY = 0.0035;
+/** Clear night sky, scaled so the lantern-lit canvas is ~100× brighter and the pines still read. */
+const SKY = 0.012;
 const EXPOSURE = 1.45;
 
 export interface Stage {
@@ -58,7 +58,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   host.append(renderer.domElement);
 
   // Aerial perspective at night: distant pines sink into the sky's own colour.
-  scene.fog = new FogExp2("#05070c", 0.045);
+  scene.fog = new FogExp2("#0b1220", 0.04);
 
   const lamp = new PointLight("#ffb068", LANTERN_CD, 0, 2);
   lamp.position.set(...LAMP);
@@ -94,7 +94,26 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
       renderer.shadowMap.needsUpdate = true;
     })
     .catch(() => undefined);
-  const loaded = Promise.all([env, texturesLoaded()]).then(() => undefined);
+  // Set dressing arrives after the first frame, compiled off the critical path.
+  let dressed: () => void = () => {};
+  const dressing = new Promise<void>((done) => {
+    dressed = done;
+  });
+  const addSetDressing = () => {
+    const extra = buildSetDressing();
+    const add = () => {
+      scene.add(extra);
+      dressed();
+    };
+    if (!renderer.extensions.has("KHR_parallel_shader_compile")) return add();
+    void renderer
+      .compileAsync(extra, camera, scene)
+      .catch(() => undefined)
+      .then(add);
+  };
+  const loaded = Promise.all([env, dressing])
+    .then(() => texturesLoaded())
+    .then(() => undefined);
 
   let view: Bookmark | null = null;
   const fit = () => {
@@ -116,8 +135,9 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     const want = portrait ? 4.0 : 5.4;
     const halfV = Math.tan(((camera.fov / 2) * Math.PI) / 180);
     const dist = Math.max(portrait ? 9.2 : 8.4, want / 2 / (halfV * aspect) + 1.2);
-    camera.position.set(portrait ? 0.35 : 1.1, portrait ? 2.8 : 2.45, dist);
-    camera.lookAt(0, portrait ? 1.3 : 1.5, 1.0);
+    // Slightly off-axis, so the tent's side, guy lines and pegs recede and give it volume.
+    camera.position.set(portrait ? 0.9 : 2.3, portrait ? 2.8 : 2.35, dist);
+    camera.lookAt(portrait ? 0.1 : 0.15, portrait ? 1.35 : 1.7, portrait ? 1.0 : 0.6);
     camera.updateProjectionMatrix();
   };
   fit();
@@ -195,6 +215,8 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
         if (first) {
           first = false;
           onFirst();
+          // After the veil has faded, so its compile cannot stall the fade.
+          window.setTimeout(addSetDressing, 1200);
         }
         for (let i = waiters.length - 1; i >= 0; i--) {
           const w = waiters[i];
@@ -204,7 +226,18 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
           }
         }
       };
-      raf = requestAnimationFrame(loop);
+      // Where the driver compiles shaders in parallel (KHR_parallel_shader_compile), compile the
+      // whole scene up front; without it the async path only adds a second pass, so draw now.
+      if (!renderer.extensions.has("KHR_parallel_shader_compile")) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      void renderer
+        .compileAsync(scene, camera)
+        .catch(() => undefined)
+        .then(() => {
+          raf = requestAnimationFrame(loop);
+        });
     },
     dispose() {
       cancelAnimationFrame(raf);
