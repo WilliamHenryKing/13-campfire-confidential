@@ -30,7 +30,8 @@ test("story 1 can be told with the keyboard, and the reveal follows", async ({ p
   });
 
   await page.goto("/");
-  await expect(page.locator("#arrival")).toHaveClass(/is-done/, { timeout: 20_000 });
+  // The veil lifts after the first frame, then removes itself; either state means ready.
+  await expect(page.locator("#arrival:not(.is-done)")).toHaveCount(0, { timeout: 120_000 });
   await page.getByRole("button", { name: "Light the lamp" }).click();
   await expect(page.getByRole("heading", { name: "The Mushroom" })).toBeVisible();
   await expect(page.locator(".meter-word")).not.toContainText("That's it!");

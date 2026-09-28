@@ -29,6 +29,8 @@ export interface World {
   setFrozen(frozen: boolean): void;
   frames(n: number): Promise<void>;
   rendererName(): string;
+  /** Resolves when the environment and all textures have loaded. */
+  loaded: Promise<void>;
 }
 
 interface ViewState {
@@ -44,7 +46,7 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
   const overlay = createWallOverlay();
   stage.scene.add(overlay.mesh);
 
-  const stringMat = new MeshStandardMaterial({ color: "#e8dcc4", roughness: 0.9 });
+  const stringMat = new MeshStandardMaterial({ color: "#6f5f4a", roughness: 1 });
   const stringGeo = new CylinderGeometry(0.0035, 0.0035, 1, 5);
   stringGeo.translate(0, 0.5, 0);
 
@@ -176,7 +178,7 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
       });
     },
     bind(handlers) {
-      attachInput(stage.renderer.domElement, stage.camera, {
+      attachInput(stage.dom, stage.camera, {
         ...handlers,
         pickable: () => (stage.props.visible ? views.map((v) => v.view.group) : []),
       });
@@ -187,11 +189,8 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
     setView: (view) => stage.setView(view),
     setFrozen: (frozen) => stage.setFrozen(frozen),
     frames: (n) => stage.frames(n),
-    rendererName() {
-      const gl = stage.renderer.getContext();
-      const ext = gl.getExtension("WEBGL_debug_renderer_info");
-      return String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
-    },
+    rendererName: () => stage.rendererName(),
+    loaded: stage.loaded,
   };
   return world;
 }

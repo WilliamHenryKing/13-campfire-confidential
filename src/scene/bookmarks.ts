@@ -10,10 +10,10 @@ export interface Bookmark {
 }
 
 export const BOOKMARKS: Record<string, Bookmark> = {
-  /** Establishing wide: outside and behind the tent, the shadow play glowing through. */
+  /** Establishing wide: the camp from the forest edge, tent glowing, lantern and props. */
   establishing: {
-    pos: [-6.2, 2.6, -6.8],
-    target: [0.2, 1.6, 0.4],
+    pos: [-7.6, 3.1, 9.8],
+    target: [0.3, 1.5, 0.2],
     fov: 42,
     viewport: { width: 1440, height: 900 },
   },
@@ -33,8 +33,8 @@ export const BOOKMARKS: Record<string, Bookmark> = {
   },
   /** Grazing angle along the canvas: weave, seams and the shadow edge. */
   grazing: {
-    pos: [3.1, 1.35, 0.55],
-    target: [-0.4, 1.55, 0.02],
+    pos: [1.9, 1.45, 0.42],
+    target: [-0.5, 1.55, 0.0],
     fov: 45,
     viewport: { width: 1440, height: 900 },
   },

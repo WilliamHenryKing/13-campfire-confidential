@@ -147,6 +147,11 @@ world.start(() => {
   firstFrame();
 });
 if (wantsVisualTest())
-  installVisualTest(world, store, drawn, (on) => {
-    capturing = on;
-  });
+  installVisualTest(
+    world,
+    store,
+    Promise.all([drawn, world.loaded]).then(() => undefined),
+    (on) => {
+      capturing = on;
+    },
+  );
