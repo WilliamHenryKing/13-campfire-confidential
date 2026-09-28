@@ -3,6 +3,7 @@ import { CylinderGeometry, Mesh, MeshStandardMaterial } from "three";
 import type { Frame } from "../game/compare";
 import { PROPS } from "../game/props";
 import type { Placement, PropKind } from "../game/types";
+import type { Bookmark } from "./bookmarks";
 import { attachInput, type InputHandlers } from "./input";
 import { ALIVE_SECONDS, alive, kick, type Swing, stepSwing } from "./motion";
 import { createWallOverlay } from "./overlay";
@@ -23,6 +24,11 @@ export interface World {
   tableau(figures: readonly Uint8Array[], captions: readonly string[]): void;
   bind(handlers: Omit<InputHandlers, "pickable">): void;
   start(onFirstFrame: () => void): void;
+  /** Capture support: camera bookmark, frozen time, frame waits, GPU description. */
+  setView(view: Bookmark | null): void;
+  setFrozen(frozen: boolean): void;
+  frames(n: number): Promise<void>;
+  rendererName(): string;
 }
 
 interface ViewState {
@@ -80,7 +86,10 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
     v.string.rotation.z = v.swing.angle * 0.5;
   };
 
+  let lastT = -1;
   const onFrame = (t: number) => {
+    if (t === lastT) return; // time is frozen for a capture
+    lastT = t;
     const now = t / 1000;
     let moving = false;
     for (const v of views) {
@@ -174,6 +183,14 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
     },
     start(onFirstFrame) {
       stage.start(onFrame, onFirstFrame);
+    },
+    setView: (view) => stage.setView(view),
+    setFrozen: (frozen) => stage.setFrozen(frozen),
+    frames: (n) => stage.frames(n),
+    rendererName() {
+      const gl = stage.renderer.getContext();
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      return String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
     },
   };
   return world;

@@ -15,6 +15,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { LAMP } from "../game/shadow";
+import type { Bookmark } from "./bookmarks";
 import { buildCampsite } from "./campsite";
 import { createDust } from "./dust";
 
@@ -30,6 +31,12 @@ export interface Stage {
   invalidate(): void;
   start(onFrame: (t: number) => void, onFirst: () => void): void;
   setGlow(level: number): void;
+  /** Override the game camera (captures); null returns to the responsive framing. */
+  setView(view: Bookmark | null): void;
+  /** Stop time-driven motion (flicker, dust, swing) at a fixed instant. */
+  setFrozen(frozen: boolean): void;
+  /** Resolves after the given number of rendered frames. */
+  frames(n: number): Promise<void>;
   dispose(): void;
 }
 
@@ -97,11 +104,20 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   const dust = createDust(reducedMotion);
   scene.add(dust.object);
 
+  let view: Bookmark | null = null;
   const fit = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
     renderer.setSize(w, h);
     const aspect = w / h;
+    if (view) {
+      camera.aspect = aspect;
+      camera.fov = view.fov;
+      camera.position.set(...view.pos);
+      camera.lookAt(...view.target);
+      camera.updateProjectionMatrix();
+      return;
+    }
     const portrait = aspect < 0.9;
     camera.aspect = aspect;
     camera.fov = portrait ? 58 : 40;
@@ -119,6 +135,8 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
 
   let raf = 0;
   let glow = 1;
+  let frozenAt: number | null = null;
+  const waiters: { left: number; done: () => void }[] = [];
   return {
     renderer,
     scene,
@@ -130,11 +148,22 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
     setGlow(level) {
       glow = level;
     },
+    setView(next) {
+      view = next;
+      fit();
+    },
+    setFrozen(frozen) {
+      frozenAt = frozen ? (frozenAt ?? performance.now()) : null;
+    },
+    frames(n) {
+      return new Promise((done) => waiters.push({ left: n, done }));
+    },
     start(onFrame, onFirst) {
       let first = true;
       renderer.shadowMap.needsUpdate = true;
-      const loop = (t: number) => {
+      const loop = (now: number) => {
         raf = requestAnimationFrame(loop);
+        const t = frozenAt ?? now;
         onFrame(t);
         dust.tick(t);
         const flicker = reducedMotion
@@ -147,6 +176,13 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
         if (first) {
           first = false;
           onFirst();
+        }
+        for (let i = waiters.length - 1; i >= 0; i--) {
+          const w = waiters[i];
+          if (w && --w.left <= 0) {
+            waiters.splice(i, 1);
+            w.done();
+          }
         }
       };
       raf = requestAnimationFrame(loop);

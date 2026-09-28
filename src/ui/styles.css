@@ -477,3 +477,7 @@ fieldset {
     transition: none;
   }
 }
+
+.capture-clean .hud {
+  display: none;
+}

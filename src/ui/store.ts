@@ -7,6 +7,8 @@ export interface Store {
   get(): GameState;
   dispatch(action: Action): void;
   subscribe(fn: () => void): () => void;
+  /** Replace the whole state; used only by the visual-capture hook to pose a scene. */
+  replace(state: GameState): void;
 }
 
 export function createStore(radiusOf: (state: GameState, index: number) => number): Store {
@@ -17,6 +19,10 @@ export function createStore(radiusOf: (state: GameState, index: number) => numbe
     dispatch(action) {
       const next = reduce(state, action, (i) => radiusOf(state, i));
       if (next === state) return;
+      state = next;
+      for (const fn of listeners) fn();
+    },
+    replace(next) {
       state = next;
       for (const fn of listeners) fn();
     },

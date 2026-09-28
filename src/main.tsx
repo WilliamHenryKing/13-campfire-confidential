@@ -8,6 +8,7 @@ import { worldReady } from "./loader";
 import { createWorld } from "./scene/world";
 import { App } from "./ui/App";
 import { createStore } from "./ui/store";
+import { installVisualTest, wantsVisualTest } from "./visual-test";
 import "./ui/styles.css";
 
 // Wiring: one store drives both the three.js world and the React HUD.
@@ -45,8 +46,11 @@ document.body.prepend(sceneHost);
 const world = createWorld(sceneHost, reducedMotion);
 let interacting = false;
 let settleTimer = 0;
+/** Set by the capture hook: a posed scene must not tell itself. */
+let capturing = false;
 
 function scheduleSettle() {
+  if (capturing) return;
   window.clearTimeout(settleTimer);
   settleTimer = window.setTimeout(() => {
     if (!interacting) store.dispatch({ type: "settle" });
@@ -134,4 +138,15 @@ render(store.get());
 
 const root = document.getElementById("root");
 if (root) createRoot(root).render(<App store={store} sound={sound} />);
-world.start(() => worldReady());
+let firstFrame: () => void = () => {};
+const drawn = new Promise<void>((done) => {
+  firstFrame = done;
+});
+world.start(() => {
+  worldReady();
+  firstFrame();
+});
+if (wantsVisualTest())
+  installVisualTest(world, store, drawn, (on) => {
+    capturing = on;
+  });
