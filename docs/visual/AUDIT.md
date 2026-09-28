@@ -61,3 +61,84 @@ What the captures show:
    lower tier (no GTAO or bloom, smaller shadow map) for phones.
 7. **Artefacts.** Make the dust round and soft, and soften the shadow-map edges (PCF radius
    plus a larger map on the point light).
+
+## After (`docs/visual/captures/after/`)
+
+Same bookmarks, the same pose and the same SwiftShader renderer, on the high tier.
+
+| Bookmark | L | M | D | E | A | C | X | U | Mean | Before |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| establishing | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | **2.9** | 1.3 |
+| hero | 4 | 3 | 2 | 3 | 4 | 3 | 3 | 3 | **3.1** | 2.0 |
+| closeup | 3 | 3 | 3 | 2 | 3 | 3 | 3 | 3 | **2.9** | 1.5 |
+| grazing | 3 | 4 | 3 | 3 | 3 | 3 | 4 | 3 | **3.3** | 1.6 |
+| phone-hero | 4 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | **3.0** | 2.0 |
+
+Overall mean: **1.7 → 3.0** (tech demo → competent indie).
+
+### Luminance targets for the hero (8-bit luma of the capture)
+
+The game lives on one relationship: a lantern-warm screen against a dark night, with a shadow
+darker than anything else. These values were measured on `after/hero.png` and must hold after
+any future grading change.
+
+| Region | Target | Measured |
+| --- | --- | --- |
+| Wall centre, beside the figure | 130–175 | 142 |
+| Wall edge (lamp falloff) | 70–110 | 86 |
+| Shadow figure (umbra) | ≤ 8 | 1 |
+| Night sky and forest | ≤ 12 | 0 |
+| Ground at mid-distance | 8–30 | 13 |
+| Ground at the lantern's foot | 100–170 | 149 |
+
+Exposure is the only brightness control (`EXPOSURE` in `src/scene/stage.ts`). The first
+"after" pass at 0.95 measured a wall centre of 116, which read flat, so it was raised to 1.45.
+
+### What changed
+
+- **Light.** The lantern is a point light of about 80 cd at the rules' lamp position with a
+  2048 cube shadow (PCF radius 3, a small-source penumbra). No rescue lights remain. The
+  night-sky HDRI (CC0) is both the environment and the background at true relative strength
+  (about 1/300 of the lit canvas). The HDR composer runs GTAO, bloom (threshold 9, mantle
+  only, clamped), a scotopic grade, then OutputPass with Neutral tone mapping and sRGB once,
+  then SMAA. Neutral was chosen over AgX because AgX drifted the warm canvas toward grey.
+- **Tent.** A closed wall tent in scanned linen canvas at its real 0.27 m weave, with macro
+  variation, a mud-splashed hem, a 2 cm sagging screen with folds under the eave, and
+  thin-fabric translucency. From outside, the tent glows with the shadow play.
+- **Props.** Chipped enamel and paint over bare steel, driven by a paint-survival mask from a
+  scanned painted-metal texture, plus grained wood, leather and bark. Geometry is bevelled
+  lathe and rounded boxes inside the judged silhouettes.
+- **Lantern.** A painted fount, Fresnel glass globe, glowing mantle (the only emissive),
+  blackened hood, frame, bail and a bark stump.
+- **Ground and set.** A forest floor with two-scale breakup, instanced stones, twigs, cones
+  and pines with ±20 % scale, rotation and hue jitter, soft round dust, and exponential
+  aerial fog in the sky's colour.
+- **Tiers.** A low tier for phones and small screens (no GTAO, 1024 cube, pixel ratio 1.5).
+  Adaptive quality sheds GTAO, then pixel ratio, after about 2 s of slower-than-60 fps frames.
+
+### Remaining flaws (three most visible per bookmark)
+
+- **establishing:** (1) the pines are lost in darkness, with no moonlit rim to separate them
+  from the sky; (2) the tent is a clean box with no roof overhang, ridge sag or
+  door; (3) the log's end grain reads dark, like a pipe.
+- **hero:** (1) the canvas reads smooth at this distance, because the weave only appears at
+  grazing angles; (2) the strings are thin, aliased lines; (3) the ground outside the lamp pool
+  falls to flat black.
+- **closeup:** (1) the thermos lid is a dark, unreadable steel cap in back light; (2) the
+  bowl's cream rim is the hottest thing in frame; (3) there is little floor detail directly
+  under the props (no contact scatter).
+- **grazing:** (1) the seams are flat strips with no stitching or thickness; (2) the
+  penumbra has a uniform width, with no contact hardening near the wall; (3) the tent pole
+  at the edge is a plain cylinder.
+- **phone-hero:** (1) the props are tiny on a phone, so the figure carries the frame alone;
+  (2) the stump top reads flat; (3) the mantle bloom is small, so the lantern reads as a
+  point rather than a glowing globe.
+
+### Not done
+
+- **Sourced models.** None were used. The props must match the judged convex primitives, so
+  refined procedural geometry won; nothing in the CC0 libraries matched these props closely
+  enough.
+- **KTX2 and meshopt.** Textures ship as WebP 1K. No glTF is shipped, so meshopt has nothing
+  to compress.
+- **Lantern frame shadows.** The frame casts none, by design, so it cannot stripe the screen.

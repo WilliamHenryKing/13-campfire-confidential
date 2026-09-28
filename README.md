@@ -39,7 +39,7 @@ Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a
 - **Four stories and a finale.** Each told secret brings its figure to life: the mushroom sways, the rabbit hops, the snail crawls and the rocket lifts off. The last story ends on a painted storyboard of your own shadows.
 - **Feedback that helps.** A live likeness meter, and advice that names one prop and one change ("the kettle's shadow wants to be bigger"). A chalk trace of the sketch follows if you need it.
 - **Cosy sound design.** A harp loop, crickets, fire and canvas wind, plus a clink per material, creaks, rising ticks as the likeness climbs, and a reveal sting.
-- **Tactile props.** Clay-style camp gear swings on strings in a lantern beam full of drifting dust.
+- **A real lantern night.** A pressure lantern is the only key light, so real shadows fall on a woven canvas tent. The props are chipped enamel, grained wood and worn leather, and they swing on their strings in air full of drifting dust.
 - **Made for everyone.** Mouse, touch and keyboard, labelled controls with visible focus, and a phone layout. `prefers-reduced-motion` turns off every animation.
 
 ## Screenshots
@@ -57,10 +57,11 @@ Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a
 
 ## Built with
 
-Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict), Vite, Bun, Tailwind CSS v4, GSAP and Biome. Every mesh and texture is procedural.
+Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict), Vite, Bun, Tailwind CSS v4, GSAP and Biome. Geometry is built in code. Surfaces use CC0 Poly Haven scans, and the rendering is physically based: an HDR composer with GTAO, thresholded bloom, a scotopic grade, Neutral tone mapping applied once, and SMAA. See `docs/visual/AUDIT.md`.
 
 - **Shadow projection you can test.** Each prop is a union of convex solids. `src/game/shadow.ts` projects every solid from the lamp onto the tent plane, takes the convex hull and rasterises it into a mask. The three.js spotlight sits at exactly the same lamp position, so what you see is what is scored.
 - **Likeness that ignores where and how big.** A figure is centred on its centroid and scaled by √area into a 48 × 48 grid. It is then compared with the target by overlap (Dice), straight and mirrored. A participation factor makes every prop pull its weight, and each story has its own pass mark. Unit tests check that the known answer passes, that small slips still pass, and that random clutter almost never does.
+- **One light, two uses.** The lantern's point light sits at exactly the lamp position the rules project from, so the rendered shadow map *is* the judged figure. The canvas shader adds thin-fabric translucency, so from outside the tent the shadow play glows through.
 - **Advice from geometry.** Each prop's shadow is compared with its counterpart in a known answer, relative to the figure's largest prop. The biggest error, in the order size → outline → position, becomes one plain sentence.
 
 ## Run it locally
@@ -70,13 +71,30 @@ bun install
 bun run dev        # http://127.0.0.1:4523/
 bun run check      # strict tsc, Biome, bun test, production build into dist/
 bun run test:e2e   # Playwright: tells story 1 by keyboard against the build
+# visual evidence and README media, against a running preview:
+node tools/visual/capture.mjs <set>   # docs/visual/captures/<set>/
+node tools/visual/readme-media.mjs    # docs/readme/{desktop,phone}.png, preview.gif
 ```
+
+Append `?tier=low` for the phone tier, or `?e2e` for the capture hook (`window.__VISUAL_TEST__`).
 
 ## Credits
 
-All geometry, textures and type are made in code or use system fonts. The audio is re-encoded to 64 kbps MP3 in `public/audio/` (about 1.6 MB). Each licence was checked on its source page.
+Geometry and type are made in code or use system fonts. Every shipped file is listed with source, author, licence, date, sha256 and processing in [`assets.manifest.json`](assets.manifest.json). That comes to 7.8 MB: textures as WebP 1K in `public/textures/` and audio as 64 kbps MP3 in `public/audio/`.
 
-| File | Source | Author | Licence |
+| Texture / HDRI | Source | Author | Licence |
+| --- | --- | --- | --- |
+| Tent canvas | [Rough Linen](https://polyhaven.com/a/rough_linen) | colormass, Rico Cilliers | CC0 |
+| Forest floor, stones, pine needles | [Forest Floor](https://polyhaven.com/a/forest_floor) | eye-candy.xyz | CC0 |
+| Enamel and paint wear, steel roughness | [Rusty Painted Metal](https://polyhaven.com/a/rusty_painted_metal) | Amal Kumar | CC0 |
+| Spoons, poles, log ends | [Fine Grained Wood](https://polyhaven.com/a/fine_grained_wood) | Rob Tuytel | CC0 |
+| Boot | [Brown Leather](https://polyhaven.com/a/brown_leather) | Rob Tuytel | CC0 |
+| Pine cone, log, pines, stump | [Bark Brown 02](https://polyhaven.com/a/bark_brown_02) | Rob Tuytel | CC0 |
+| Night sky and environment | [Kloppenheim 02 (pure sky)](https://polyhaven.com/a/kloppenheim_02_puresky) | Greg Zaal, Jarod Guest | CC0 |
+
+The pipeline, glass shader and grade are adapted from ODD TIDE (same author, reuse authorised).
+
+| Audio | Source | Author | Licence |
 | --- | --- | --- | --- |
 | `music-meadow-thoughts.mp3` | [Meadow Thoughts](https://opengameart.org/content/meadow-thoughts) (solo harp) | Écrivain | CC0 |
 | `amb-crickets.mp3` | [Crickets Ambient Noise – loopable](https://opengameart.org/content/crickets-ambient-noise-loopable) | Wolfgang_ | CC0 |
