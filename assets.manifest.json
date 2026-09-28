@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 1,
+  "project": "13-campfire-confidential",
+  "policy": "Same-origin public assets only; CC0, public domain, NASA or CC-BY. Geometry is procedural in code.",
+  "shippedBytes": 7829719,
+  "assets": [
+    {
+      "id": "rough_linen",
+      "title": "Rough Linen",
+      "role": "tent canvas (neutralised to canvas beige)",
+      "sourceUrl": "https://polyhaven.com/a/rough_linen",
+      "author": "colormass, Rico Cilliers",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_diff_1k.jpg",
+          "sha256": "04897d7611d7390ddf5b2c6f7273f448dfc48341fdbd1f4f207fa30b331d7f57"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_nor_gl_1k.jpg",
+          "sha256": "e2402166d1a489f7414814e69e1836ab672aa24e30bec2d41fea356f81687e53"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_arm_1k.jpg",
+          "sha256": "e1ca6b51ed62834063253e08f8f2e23836aa00d72675b960ddd8e608d9f0c7e6"
+        }
+      ],
+      "realSizeMm": [270.7081392676629, 271.29998803138733],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Colour map desaturated and tinted to warm canvas beige",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/rough_linen/rough_linen_arm.webp",
+          "bytes": 443496,
+          "sha256": "c5f6e900d6982241953f6da17bab2c59eaa2c1c1a67a12d50428542ffb644051"
+        },
+        {
+          "path": "public/textures/rough_linen/rough_linen_diff.webp",
+          "bytes": 223956,
+          "sha256": "62df7e483a530bdc9fccd28cd666b8481c038c3fc3bf71983da4ee331aebb797"
+        },
+        {
+          "path": "public/textures/rough_linen/rough_linen_nor.webp",
+          "bytes": 405706,
+          "sha256": "d65d170108c2ddf984772d50a12a6cb8b61b56573f114e88a0eade5ba93b45ff"
+        }
+      ]
+    },
+    {
+      "id": "forest_floor",
+      "title": "Forest Floor",
+      "role": "forest-floor ground",
+      "sourceUrl": "https://polyhaven.com/a/forest_floor",
+      "author": "eye-candy.xyz",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_floor/forest_floor_diff_1k.jpg",
+          "sha256": "f12e5adea1741f9eb7a528bfc621f8267885b9530b74c3a8afdb823899bdbf0b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_floor/forest_floor_nor_gl_1k.jpg",
+          "sha256": "681f3de8c756c4d19bcda33039f953295498f38b1425ce9d56b37d6f97f6e518"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_floor/forest_floor_arm_1k.jpg",
+          "sha256": "b9443866b317194651550d6d961413f529a17e85a87e3e0a8289ec022cc39090"
+        }
+      ],
+      "realSizeMm": [2139.9996280670166, 2139.9996280670166],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/forest_floor/forest_floor_arm.webp",
+          "bytes": 249050,
+          "sha256": "62b15ec9a6be56f671db8d7cb2b117043ab520908c7d85a25d299c61a41c4e74"
+        },
+        {
+          "path": "public/textures/forest_floor/forest_floor_diff.webp",
+          "bytes": 444362,
+          "sha256": "60b3e46ad0cd678405141de865cefd45a9eab84823e03723ec96a8e7c1cf86c7"
+        },
+        {
+          "path": "public/textures/forest_floor/forest_floor_nor.webp",
+          "bytes": 608724,
+          "sha256": "5738f4e81435e96f46980de91130e314153a1b8aea6f5aaaeceb4a1bc18f566b"
+        }
+      ]
+    },
+    {
+      "id": "rusty_painted_metal",
+      "title": "Rusty Painted Metal",
+      "role": "painted/enamel prop wear, steel roughness",
+      "sourceUrl": "https://polyhaven.com/a/rusty_painted_metal",
+      "author": "Amal Kumar",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_diff_1k.jpg",
+          "sha256": "b086937b45c3628116a838363364a29bd3c5d2542cff906ec1d92d681ee80e15"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_nor_gl_1k.jpg",
+          "sha256": "f3372e2f60517df2d0e02c1472eb24071d95182d771c30b7ecd8e1b5142768bb"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_arm_1k.jpg",
+          "sha256": "cd3ef3750348bd8afa552ac41120310f740cd4bfd3c303d81e68e3100bdf7fdd"
+        }
+      ],
+      "realSizeMm": [2200.000047683716, 2200.000047683716],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)",
+        "Derived a paint-survival mask (paint.webp) from the colour map: clip((R - 1.25G - 10) * 4)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/rusty_painted_metal/rusty_painted_metal_arm.webp",
+          "bytes": 25890,
+          "sha256": "a35b018ab0445aeda9c2101ee0b8bc1eeddb14dd8e78187a3739e20bba1506c2"
+        },
+        {
+          "path": "public/textures/rusty_painted_metal/rusty_painted_metal_diff.webp",
+          "bytes": 41296,
+          "sha256": "617a1538c53470002d9f505f6874c0f06d95caf02871ac8b84a5cd642d7c1717"
+        },
+        {
+          "path": "public/textures/rusty_painted_metal/rusty_painted_metal_nor.webp",
+          "bytes": 51226,
+          "sha256": "5dbd66ffceadc67a7aea001e32453cdb5a7288f1d0bcad4e5e725095644735be"
+        },
+        {
+          "path": "public/textures/rusty_painted_metal/rusty_painted_metal_paint.webp",
+          "bytes": 127054,
+          "sha256": "adda218d1063d635db925ebec205147c8b8ea8e19821ec2b959bee32be98729b"
+        }
+      ]
+    },
+    {
+      "id": "fine_grained_wood",
+      "title": "Fine Grained Wood",
+      "role": "wooden spoons, poles",
+      "sourceUrl": "https://polyhaven.com/a/fine_grained_wood",
+      "author": "Rob Tuytel",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg",
+          "sha256": "d171f45ef01bc6e239b00dfaa4961bcd27f7d8e93e3962da3bd3d0ce703d802c"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_nor_gl_1k.jpg",
+          "sha256": "ba95eadc009818e161d0f753191f1bacc3fc861e593be0bc6d82b437f9ec8044"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_arm_1k.jpg",
+          "sha256": "3928796cc98b380cd254dc67e9246e60027ef349edb5f75033cc6f3b34572450"
+        }
+      ],
+      "realSizeMm": [600.0000238418579, 600.0000238418579],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/fine_grained_wood/fine_grained_wood_arm.webp",
+          "bytes": 210948,
+          "sha256": "c3f7226831621a96d7c7dd3d2b7c7e0a7e59487827bb469b08f27ea04e2b95f9"
+        },
+        {
+          "path": "public/textures/fine_grained_wood/fine_grained_wood_diff.webp",
+          "bytes": 75222,
+          "sha256": "3eddf395076de309d59bc4d523f369182ea93b792fc0ac0e828a69832ea700e8"
+        },
+        {
+          "path": "public/textures/fine_grained_wood/fine_grained_wood_nor.webp",
+          "bytes": 40144,
+          "sha256": "7043a28f76ffcfcd91ed37eaa38283fcc7a30a97d07657678aeca7defe3f25c9"
+        }
+      ]
+    },
+    {
+      "id": "brown_leather",
+      "title": "Brown Leather",
+      "role": "hiking boot",
+      "sourceUrl": "https://polyhaven.com/a/brown_leather",
+      "author": "Rob Tuytel",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_albedo_1k.jpg",
+          "sha256": "7e9e1d6566d1fd91d4ceb4966c4820361e85d53a7a828b6bab3b2a093a876cd1"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_nor_gl_1k.jpg",
+          "sha256": "506a0b7650c2dea285e247f26ed2d0d6ec38fc10dd584359f0d203e9c082236d"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_arm_1k.jpg",
+          "sha256": "8f40d242830b2c1310470abfaf2df15f52658d01c21d97dd96f0679589677de1"
+        }
+      ],
+      "realSizeMm": [400.0000059604645, 400.00003576278687],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/brown_leather/brown_leather_arm.webp",
+          "bytes": 453724,
+          "sha256": "135b21e276d49c7678d2aa7e62d1c05571e493df03962a6c156caf91bcf67b91"
+        },
+        {
+          "path": "public/textures/brown_leather/brown_leather_diff.webp",
+          "bytes": 170604,
+          "sha256": "c5f6e26c67da26aadb7eefcccedf1ba04636aed711d9256f52c4d20e3545f164"
+        },
+        {
+          "path": "public/textures/brown_leather/brown_leather_nor.webp",
+          "bytes": 328982,
+          "sha256": "5ed11615b4213d367f0f738e0443a5744423dcb684e0b040f489d5dc9964e232"
+        }
+      ]
+    },
+    {
+      "id": "bark_brown_02",
+      "title": "Bark Brown 02",
+      "role": "pine cone, log bench",
+      "sourceUrl": "https://polyhaven.com/a/bark_brown_02",
+      "author": "Rob Tuytel",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_brown_02/bark_brown_02_diff_1k.jpg",
+          "sha256": "920fa0bed0c9d78c1d530e99795113afd532d7db746de440f4a85d7c83ed0f1a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_brown_02/bark_brown_02_nor_gl_1k.jpg",
+          "sha256": "0d5e691e8ad8bcd093a3587887fda2a6b4a948b5708a4f256f7919584c6eb857"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_brown_02/bark_brown_02_arm_1k.jpg",
+          "sha256": "6bd86d37b3b9b40cc30a4b661e382ec41fa7463a8b1144ff44708b19fa675af1"
+        }
+      ],
+      "realSizeMm": [999.9990463256836, 999.998927116394],
+      "processingSteps": [
+        "Downloaded 1k JPG maps (diffuse, nor_gl, arm) from the Poly Haven API",
+        "Re-encoded to WebP (colour q82, normal q90, ARM q85)"
+      ],
+      "outputFiles": [
+        {
+          "path": "public/textures/bark_brown_02/bark_brown_02_arm.webp",
+          "bytes": 179212,
+          "sha256": "049ec5940b5e750068043a58e4e10da36ae87edef6b16737db88be45b34bc76f"
+        },
+        {
+          "path": "public/textures/bark_brown_02/bark_brown_02_diff.webp",
+          "bytes": 278886,
+          "sha256": "718b888f5595e2b5113415474539b63be39b7ba5d545ba462a4f3d79297dc299"
+        },
+        {
+          "path": "public/textures/bark_brown_02/bark_brown_02_nor.webp",
+          "bytes": 426636,
+          "sha256": "96255c158c271bfb29f319bc205e81cb2d1d6ce70ec481287c984915e020f37b"
+        }
+      ]
+    },
+    {
+      "id": "kloppenheim_02_puresky",
+      "title": "Kloppenheim 02 (Pure Sky)",
+      "role": "night environment lighting and sky",
+      "sourceUrl": "https://polyhaven.com/a/kloppenheim_02_puresky",
+      "author": "Greg Zaal, Jarod Guest",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-28",
+      "original": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloppenheim_02_puresky_1k.hdr",
+          "sha256": "2b94f1046750f91616b1442236edd233142608c8452f76b4c427a4c2901b352b"
+        }
+      ],
+      "processingSteps": ["Downloaded 1k Radiance HDR; shipped unchanged"],
+      "outputFiles": [
+        {
+          "path": "public/textures/kloppenheim_02_puresky_1k.hdr",
+          "bytes": 1393622,
+          "sha256": "2b94f1046750f91616b1442236edd233142608c8452f76b4c427a4c2901b352b"
+        }
+      ]
+    },
+    {
+      "id": "music-meadow-thoughts",
+      "title": "Meadow Thoughts",
+      "role": "audio",
+      "sourceUrl": "https://opengameart.org/content/meadow-thoughts",
+      "author": "Écrivain",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://opengameart.org/content/meadow-thoughts",
+          "sha256": "9c55cfadb5acca6ef9ca81bf89d343b13f2b09984d45ae520cf877f1f9ad4404"
+        }
+      ],
+      "processingSteps": ["Trimmed to 149.25 s, loudness-normalised (-20 LUFS), 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/music-meadow-thoughts.mp3",
+          "bytes": 1194153,
+          "sha256": "2814b7706699066dda3c01b06a903d7dddd6c60f3869c2aba70de89e08c4afb8"
+        }
+      ]
+    },
+    {
+      "id": "amb-crickets",
+      "title": "Crickets Ambient Noise - loopable",
+      "role": "audio",
+      "sourceUrl": "https://opengameart.org/content/crickets-ambient-noise-loopable",
+      "author": "Wolfgang_",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://opengameart.org/content/crickets-ambient-noise-loopable",
+          "sha256": "5b5bd1f744087888c5623543c3ff80be9c2ce106093993e7c8a8492b0280b2c0"
+        }
+      ],
+      "processingSteps": ["Mono, loudness-normalised, 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/amb-crickets.mp3",
+          "bytes": 92269,
+          "sha256": "0f3beceed6308e9c5c7e397eb76af52caa5c8a07fa3f7d6eb195289b0ef60ea9"
+        }
+      ]
+    },
+    {
+      "id": "amb-fire",
+      "title": "Fireplace Sound loop",
+      "role": "audio",
+      "sourceUrl": "https://opengameart.org/content/fireplace-sound-loop",
+      "author": "PagDev",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://opengameart.org/content/fireplace-sound-loop",
+          "sha256": "85ca0cc60d0c037fff8b185e31ad1fcdbda6ce45eee17c3ee1318d1b8f59e330"
+        }
+      ],
+      "processingSteps": ["Mono, loudness-normalised, 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/amb-fire.mp3",
+          "bytes": 234817,
+          "sha256": "43a849d8f394c5ab8d66ef0bc5995961f7aa037ea14b92cd691e3bfcfaabee60"
+        }
+      ]
+    },
+    {
+      "id": "amb-wind",
+      "title": "Wind Woosh Loop",
+      "role": "audio",
+      "sourceUrl": "https://opengameart.org/content/wind-woosh-loop",
+      "author": "SketchMan3",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://opengameart.org/content/wind-woosh-loop",
+          "sha256": "0cfdbd3f21ed449689a9024264edf267d0037a6495813a7010827672ec191dac"
+        }
+      ],
+      "processingSteps": ["Low-passed at 1.8 kHz, mono, 48 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/amb-wind.mp3",
+          "bytes": 36276,
+          "sha256": "c25cf973cdedf77dd6007eab388fa62eb4e38a8d587575b773d8e8c773c7344a"
+        }
+      ]
+    },
+    {
+      "id": "kenney-rpg-audio",
+      "title": "Kenney RPG Audio",
+      "role": "sound effects",
+      "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+      "author": "Kenney (kenney.nl)",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://kenney.nl/assets/rpg-audio",
+          "sha256": "6dbeaf8544da958d8f2adcb4a4a4b76c1ade34a05f8ab9edccd327da7375f38b"
+        }
+      ],
+      "processingSteps": ["Selected clips peak-normalised to -3 dBFS, mono 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/sfx-grab.mp3",
+          "bytes": 5895,
+          "sha256": "175180d9b6ca4a88e8927ae49490ed5460cd0a6d88c577e69297179f3881ad1d"
+        },
+        {
+          "path": "public/audio/sfx-turn.mp3",
+          "bytes": 7149,
+          "sha256": "48993627925563af33f5f795185531eab888ead34f35854099c7c0132c2a8702"
+        },
+        {
+          "path": "public/audio/sfx-tilt.mp3",
+          "bytes": 3178,
+          "sha256": "d85fd237866cca217a04f0b8b731873993504ea79325bb09cc5f3a0da5cd33b8"
+        },
+        {
+          "path": "public/audio/sfx-pick-metal.mp3",
+          "bytes": 12164,
+          "sha256": "a3a2021869f2ed4a814a67633043669a66ee8513e2ba4f6e23ce68bb8f40e509"
+        },
+        {
+          "path": "public/audio/sfx-pick-leather.mp3",
+          "bytes": 3805,
+          "sha256": "1c63f94fe8387a15f4dc9471111fe05635534e09442ab2c49a713741cac1217e"
+        },
+        {
+          "path": "public/audio/sfx-reset.mp3",
+          "bytes": 3596,
+          "sha256": "fd440e01d07a970afef956795cee8c9a5acb91b920b9a0e4dd08d71d30e4e3b6"
+        },
+        {
+          "path": "public/audio/sfx-page.mp3",
+          "bytes": 6731,
+          "sha256": "6ad2bb2ae4308183726d8da7424215d20212886a12f626f3430ef1cec683904c"
+        },
+        {
+          "path": "public/audio/sfx-lamp.mp3",
+          "bytes": 2760,
+          "sha256": "fe6a11fc8fa59c67fbb95c5e87200ebe426deeb9cf2806ab303e6c4d2ef9934f"
+        },
+        {
+          "path": "public/audio/sfx-paint.mp3",
+          "bytes": 2760,
+          "sha256": "f4a38181a19f9d68f0dafa462e7018fc5ff3da16d330a971e36fd68db2d09012"
+        }
+      ]
+    },
+    {
+      "id": "kenney-interface-sounds",
+      "title": "Kenney Interface Sounds",
+      "role": "sound effects",
+      "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+      "author": "Kenney (kenney.nl)",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://kenney.nl/assets/interface-sounds",
+          "sha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232"
+        }
+      ],
+      "processingSteps": ["Selected clips peak-normalised to -3 dBFS, mono 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/sfx-tick.mp3",
+          "bytes": 670,
+          "sha256": "8888e5b4556090efb2eef5eed54c3c14d2924e024d6781d307bea8c2e197aaba"
+        },
+        {
+          "path": "public/audio/sfx-depth.mp3",
+          "bytes": 8612,
+          "sha256": "05ec6e2a19c26fcadc3aceede54c8331a833b93bd7c81b56dab44d3871922e63"
+        },
+        {
+          "path": "public/audio/sfx-hint.mp3",
+          "bytes": 4432,
+          "sha256": "28a6e3bec294005001f910087aa9903c5478f62e5f0583736b06ca0243c4eb5b"
+        },
+        {
+          "path": "public/audio/sfx-trace.mp3",
+          "bytes": 1715,
+          "sha256": "c87064bd3131b0551a83359f1ad52e640c4e0de17e985ceb46e48b6afbdd2474"
+        },
+        {
+          "path": "public/audio/sfx-close.mp3",
+          "bytes": 2760,
+          "sha256": "0274d30aea9c7918dcf6218963749e60873ea53ea2d6122f215d03494fc5842f"
+        }
+      ]
+    },
+    {
+      "id": "kenney-impact-sounds",
+      "title": "Kenney Impact Sounds",
+      "role": "sound effects",
+      "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+      "author": "Kenney (kenney.nl)",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://kenney.nl/assets/impact-sounds",
+          "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8"
+        }
+      ],
+      "processingSteps": ["Selected clips peak-normalised to -3 dBFS, mono 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/sfx-settle.mp3",
+          "bytes": 1506,
+          "sha256": "873fb748c9eae6212a25fd5510533e135049e7db21188c7b0f1f4f41ca6c3a45"
+        },
+        {
+          "path": "public/audio/sfx-pick-wood.mp3",
+          "bytes": 2760,
+          "sha256": "0ffdff01ddd2102e3e9a259e0616788eb8a1db79ad08b94081a8a46ecdb965d3"
+        },
+        {
+          "path": "public/audio/sfx-pick-enamel.mp3",
+          "bytes": 5895,
+          "sha256": "086e8e712266247c61e889e9f2bf3a5187780bd28c264221767546a81a847ad1"
+        }
+      ]
+    },
+    {
+      "id": "kenney-ui-audio",
+      "title": "Kenney UI Audio",
+      "role": "sound effects",
+      "sourceUrl": "https://kenney.nl/assets/ui-audio",
+      "author": "Kenney (kenney.nl)",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://kenney.nl/assets/ui-audio",
+          "sha256": "946fc23a63d535d693eb31b2eabb80c8c28d6351e2186b344ceb71b2cb1d5eb6"
+        }
+      ],
+      "processingSteps": ["Selected clips peak-normalised to -3 dBFS, mono 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/sfx-click.mp3",
+          "bytes": 1297,
+          "sha256": "371c61f5972c8b5bbb93b05b8ae299cba8722af745e7557daf01d93a47582a10"
+        }
+      ]
+    },
+    {
+      "id": "kenney-music-jingles",
+      "title": "Kenney Music Jingles",
+      "role": "sound effects",
+      "sourceUrl": "https://kenney.nl/assets/music-jingles",
+      "author": "Kenney (kenney.nl)",
+      "license": "CC0 1.0",
+      "retrievalDate": "2026-09-27",
+      "original": [
+        {
+          "url": "https://kenney.nl/assets/music-jingles",
+          "sha256": "b729ba57959bd58793d2c5cafa348aaf2655d354f3da35ec4729e03ec77197b8"
+        }
+      ],
+      "processingSteps": ["Selected clips peak-normalised to -3 dBFS, mono 64 kbps MP3"],
+      "outputFiles": [
+        {
+          "path": "public/audio/sfx-told.mp3",
+          "bytes": 6940,
+          "sha256": "d4e064d6fda744bc8e1a17f75cf2691d399010cbaafa1a5cac474b4ddb3bd580"
+        },
+        {
+          "path": "public/audio/sfx-finale.mp3",
+          "bytes": 7776,
+          "sha256": "1f2f23401d44c9eebc22ea88afb5846980c128e63e01dbef21b62bdb5d66ca44"
+        }
+      ]
+    },
+    {
+      "id": "original-project-files",
+      "title": "Favicon, 404 page, README banner",
+      "role": "original",
+      "sourceUrl": "project",
+      "author": "Original project work",
+      "license": "Project licence",
+      "retrievalDate": null,
+      "processingSteps": ["Authored in this repository"],
+      "outputFiles": [
+        {
+          "path": "public/favicon.svg",
+          "bytes": 517,
+          "sha256": "cdfc791181e4d4827d5af1ab5807aefc1790bd62a93988dd47217f487f365915"
+        },
+        {
+          "path": "public/404.html",
+          "bytes": 546,
+          "sha256": "2a125c0486ab9cbf781b0476126989fa3a64a9d9333660e9897b28f35dc00c48"
+        },
+        {
+          "path": "docs/readme/banner.svg",
+          "bytes": 6864,
+          "sha256": "060f928a8a886f6107356078ddd89015be3b6de83a875c6a559816343a3e0c9f"
+        }
+      ]
+    }
+  ]
+}
