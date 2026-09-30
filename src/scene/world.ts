@@ -4,8 +4,9 @@ import type { Frame } from "../game/compare";
 import { PROPS } from "../game/props";
 import type { Placement, PropKind } from "../game/types";
 import type { Bookmark } from "./bookmarks";
-import { attachInput, type InputHandlers } from "./input";
+import { attachInput, type InputBinding, type InputHandlers } from "./input";
 import { ALIVE_SECONDS, alive, kick, type Swing, stepSwing } from "./motion";
+import type { Opening } from "./opening";
 import { createWallOverlay } from "./overlay";
 import { buildProp, disposeProp, highlightProp, type PropView, placeProp } from "./props";
 import { createStage } from "./stage";
@@ -16,6 +17,10 @@ import { createStage } from "./stage";
 const LINE_TOP = 5.2;
 
 export interface World {
+  readonly opening: Opening;
+  setInteractive(interactive: boolean): void;
+  setReducedMotion(reduced: boolean): void;
+  dispose(): void;
   showProps(kinds: readonly PropKind[]): void;
   sync(placements: readonly Placement[], selected: number, active: boolean): void;
   trace(grid: Uint8Array | null, frame: Frame | null): void;
@@ -43,6 +48,9 @@ interface ViewState {
 
 export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
   const stage = createStage(host, reducedMotion);
+  let disposed = false;
+  let interactive = stage.opening.phase === "done";
+  let input: InputBinding | null = null;
   const overlay = createWallOverlay();
   stage.scene.add(overlay.mesh);
 
@@ -53,9 +61,10 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
   let views: ViewState[] = [];
   let tween: gsap.core.Tween | null = null;
   const glow = { level: 1 };
-  let aliveStory: { id: string; start: number } | null = null;
+  let aliveStory: { id: string; start: number; finished: boolean } | null = null;
 
   const glowTo = (level: number, duration: number, then?: () => void) => {
+    if (disposed) return;
     gsap.killTweensOf(glow);
     if (reducedMotion) {
       glow.level = level;
@@ -91,20 +100,66 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
   let lastT = -1;
   const onFrame = (t: number) => {
     if (t === lastT) return; // time is frozen for a capture
+    const dt = lastT < 0 ? 0 : Math.min(0.05, Math.max(0, (t - lastT) / 1000));
     lastT = t;
     const now = t / 1000;
     let moving = false;
     for (const v of views) {
-      if (stepSwing(v.swing, 1 / 60)) moving = true;
+      const wasMoving = v.swing.angle !== 0 || v.swing.vel !== 0;
+      if (stepSwing(v.swing, dt) || wasMoving) moving = true;
     }
-    if (aliveStory && now - aliveStory.start <= ALIVE_SECONDS + 0.1) moving = true;
+    if (aliveStory && !aliveStory.finished) {
+      moving = true;
+      if (now - aliveStory.start >= ALIVE_SECONDS) aliveStory.finished = true;
+    }
     if (!moving) return;
     for (const v of views) pose(v, now);
     stage.invalidate();
   };
 
   const world: World = {
+    opening: stage.opening,
+    setInteractive(on) {
+      if (disposed) return;
+      interactive = on;
+      input?.setInteractive(on);
+    },
+    setReducedMotion(reduced) {
+      if (disposed) return;
+      reducedMotion = reduced;
+      stage.setReducedMotion(reduced);
+      if (reduced) {
+        tween?.totalProgress(1);
+        tween = null;
+        for (const glowTween of gsap.getTweensOf(glow)) glowTween.totalProgress(1);
+        aliveStory = null;
+        for (const v of views) {
+          v.swing.angle = v.swing.vel = 0;
+          pose(v, performance.now() / 1000);
+        }
+        stage.invalidate();
+      }
+    },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      input?.dispose();
+      input = null;
+      tween?.kill();
+      tween = null;
+      gsap.killTweensOf(glow);
+      aliveStory = null;
+      for (const v of views) {
+        disposeProp(v.view);
+        stage.props.remove(v.view.group, v.string);
+      }
+      views = [];
+      stringGeo.dispose();
+      stringMat.dispose();
+      stage.dispose();
+    },
     showProps(kinds) {
+      if (disposed) return;
       for (const v of views) {
         disposeProp(v.view);
         stage.props.remove(v.view.group, v.string);
@@ -118,11 +173,13 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
       aliveStory = null;
       stage.props.visible = true;
       tween?.kill();
+      tween = null;
       overlay.clear();
       glowTo(1, 0.8);
       stage.invalidate();
     },
     sync(placements, selected, active) {
+      if (disposed) return;
       const now = performance.now() / 1000;
       views.forEach((v, i) => {
         const at = placements[i];
@@ -138,9 +195,11 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
       stage.invalidate();
     },
     trace(grid, frame) {
+      if (disposed) return;
       overlay.trace(grid, frame);
     },
     reveal(chapterId, grid, frame) {
+      if (disposed) return;
       for (const v of views) highlightProp(v.view, false);
       tween?.kill();
       if (reducedMotion) {
@@ -156,9 +215,10 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
         onUpdate: () => overlay.reveal(grid, frame, t.a),
       });
       glowTo(1.45, 0.35, () => glowTo(1.15, 1.4));
-      aliveStory = { id: chapterId, start: performance.now() / 1000 + 0.5 };
+      aliveStory = { id: chapterId, start: performance.now() / 1000 + 0.5, finished: false };
     },
     tableau(figures, captions) {
+      if (disposed) return;
       stage.props.visible = false;
       aliveStory = null;
       stage.invalidate();
@@ -178,10 +238,13 @@ export function createWorld(host: HTMLElement, reducedMotion: boolean): World {
       });
     },
     bind(handlers) {
-      attachInput(stage.dom, stage.camera, {
+      if (disposed) return;
+      input?.dispose();
+      input = attachInput(stage.dom, stage.camera, {
         ...handlers,
         pickable: () => (stage.props.visible ? views.map((v) => v.view.group) : []),
       });
+      input.setInteractive(interactive);
     },
     start(onFirstFrame) {
       stage.start(onFrame, onFirstFrame);

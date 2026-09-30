@@ -8,10 +8,11 @@ import { softDot } from "./textures";
 export interface Dust {
   object: Points;
   tick(t: number): void;
+  setReducedMotion(reduced: boolean): void;
 }
 
 export function createDust(reducedMotion: boolean): Dust {
-  const count = reducedMotion ? 80 : 260;
+  const count = 260;
   const base = new Float32Array(count * 3);
   const phase = new Float32Array(count);
   for (let i = 0; i < count; i++) {
@@ -37,6 +38,7 @@ export function createDust(reducedMotion: boolean): Dust {
   const points = new Points(geometry, material);
   const attr = new BufferAttribute(pos, 3);
   geometry.setAttribute("position", attr);
+  geometry.setDrawRange(0, reducedMotion ? 80 : count);
   points.frustumCulled = false;
   const tick = (t: number) => {
     if (reducedMotion) return;
@@ -49,5 +51,16 @@ export function createDust(reducedMotion: boolean): Dust {
     }
     attr.needsUpdate = true;
   };
-  return { object: points, tick };
+  return {
+    object: points,
+    tick,
+    setReducedMotion(reduced) {
+      reducedMotion = reduced;
+      geometry.setDrawRange(0, reduced ? 80 : count);
+      if (reduced) {
+        pos.set(base);
+        attr.needsUpdate = true;
+      }
+    },
+  };
 }

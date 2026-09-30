@@ -12,6 +12,7 @@ export interface PlacedProp {
 
 export type Advice =
   | { kind: "offwall"; index: number }
+  | { kind: "overlap"; index: number }
   | { kind: "move"; index: number; dx: -1 | 0 | 1; dy: -1 | 0 | 1 }
   | { kind: "size"; index: number; grow: boolean }
   | { kind: "turn"; index: number }
@@ -81,14 +82,24 @@ export function evaluate(props: readonly PlacedProp[], target: Target): Evaluati
   const parts = props.map((p) => propShadow(p.kind, p.at));
   const figure = unionMasks(parts);
   const match: Match = matchShadow(figure, target.figure);
+  // An isolated silhouette has area even when another prop hides all of it on the tent.
+  // Such a prop contributes nothing to the visible figure and must not count twice.
+  const hidden = parts.findIndex(
+    (part, index) =>
+      part.count > 0 &&
+      !part.data.some(
+        (pixel, cell) => pixel && parts.every((other, j) => j === index || !other.data[cell]),
+      ),
+  );
   const base = {
-    score: match.score * participation(parts, figure, target),
+    score: hidden >= 0 ? 0 : match.score * participation(parts, figure, target),
     mirror: match.mirror,
     figure,
   };
 
   const off = parts.findIndex((m) => m.count < 4);
   if (off >= 0) return { ...base, advice: { kind: "offwall", index: off } };
+  if (hidden >= 0) return { ...base, advice: { kind: "overlap", index: hidden } };
 
   const mine = parts.map((m) => relative(m, figure, match.mirror));
   const ref = target.parts.map((m) => relative(m, target.figure, false));

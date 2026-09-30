@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { CHAPTERS, LIMITS } from "../src/game/chapters";
+import { CHAPTERS, hang, LIMITS } from "../src/game/chapters";
 import { buildTarget, evaluate, type PlacedProp } from "../src/game/hints";
 import { PROPS } from "../src/game/props";
+import { LAMP, projectToWall, propShadow, unionMasks } from "../src/game/shadow";
 import {
   chapterAt,
   evaluateState,
@@ -85,6 +86,21 @@ describe("chapters", () => {
     test(`${ch.id}: the whole figure may be made bigger, moved or mirrored`, () => {
       const moved = solution.map((p) => ({ kind: p.kind, at: { ...p.at, x: p.at.x + 0.08 } }));
       expect(evaluate(moved, target).score).toBeGreaterThan(ch.pass);
+      for (const factor of [0.75, 1.2]) {
+        const resized = solution.map((p) => {
+          const centre = projectToWall([p.at.x, p.at.y, p.at.z]);
+          const z = LAMP[2] - (LAMP[2] - p.at.z) / factor;
+          const at = hang(
+            target.figure.cx + (centre[0] - target.figure.cx) * factor,
+            target.figure.cy + (centre[1] - target.figure.cy) * factor,
+            z,
+            p.at.turn,
+            p.at.tilt,
+          );
+          return { kind: p.kind, at };
+        });
+        expect(evaluate(resized, target).score).toBeGreaterThan(ch.pass);
+      }
       const mirrored = solution.map((p) => ({
         kind: p.kind,
         at: { ...p.at, x: -p.at.x, turn: (12 - p.at.turn) % 8, tilt: (24 - p.at.tilt) % 24 },
@@ -133,6 +149,39 @@ describe("advice", () => {
     const stem = props[0];
     if (stem) stem.at = { x: 1.6, y: 1, z: 3.3, turn: 0, tilt: 0 };
     expect(evaluate(props, target).advice).toMatchObject({ kind: "offwall", index: 0 });
+  });
+
+  test("a fully hidden duplicate spoon cannot tell the rabbit story", () => {
+    const rabbit = chapterAt(1);
+    const solution = rabbit.props.map((prop) => ({ kind: prop.kind, at: prop.solution }));
+    const target = buildTarget(solution);
+    const spoon = hang(-0.1, 1.8, 3.2, 0, 3);
+    const props = solution.map((prop, i) => ({
+      kind: prop.kind,
+      at: i === 0 ? prop.at : { ...spoon },
+    }));
+    const parts = props.map((prop) => propShadow(prop.kind, prop.at));
+    expect(unionMasks(parts).data).toEqual(unionMasks(parts.slice(0, 2)).data);
+    const evaluation = evaluate(props, target);
+    expect(evaluation.score).toBeLessThan(rabbit.pass); // Previously 0.740, enough to pass.
+    expect(evaluation.advice).toMatchObject({ kind: "overlap", index: 1 });
+    expect(
+      adviceText(evaluation.advice, propNames(rabbit.props.map((prop) => prop.kind))),
+    ).toContain("wooden spoon 1's shadow is hidden");
+    expect(evaluate(solution, target).score).toBeGreaterThan(0.99);
+  });
+
+  test("swapping visible twin spoons still counts as the same rabbit", () => {
+    const rabbit = chapterAt(1);
+    const solution = rabbit.props.map((prop) => ({ kind: prop.kind, at: prop.solution }));
+    const target = buildTarget(solution);
+    const swapped = solution.map((prop, i) => ({
+      kind: prop.kind,
+      at: solution[i === 1 ? 2 : i === 2 ? 1 : i]?.at ?? prop.at,
+    }));
+    const evaluation = evaluate(swapped, target);
+    expect(evaluation.score).toBeGreaterThan(0.99);
+    expect(evaluation.advice.kind).toBe("close");
   });
 });
 

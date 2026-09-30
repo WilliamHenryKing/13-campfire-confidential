@@ -3,7 +3,7 @@ import type { SoundEngine } from "../audio/engine";
 
 // Persistent sound toggle (also M). Sits in the top-right corner in every phase.
 
-export function MuteButton({ sound }: { sound: SoundEngine }) {
+export function MuteButton({ sound, inline = false }: { sound: SoundEngine; inline?: boolean }) {
   const muted = useSyncExternalStore(
     sound.subscribe,
     () => sound.muted,
@@ -12,8 +12,9 @@ export function MuteButton({ sound }: { sound: SoundEngine }) {
   return (
     <button
       type="button"
-      className="mute"
+      className={inline ? "dialog-sound" : "mute"}
       aria-pressed={muted}
+      aria-keyshortcuts="M"
       aria-label={muted ? "Sound off. Turn sound on (M)" : "Sound on. Mute (M)"}
       title={muted ? "Unmute (M)" : "Mute (M)"}
       onClick={() => sound.setMuted(!muted)}
@@ -32,6 +33,7 @@ export function MuteButton({ sound }: { sound: SoundEngine }) {
           />
         )}
       </svg>
+      {inline && <span aria-hidden="true">Sound {muted ? "off" : "on"}</span>}
     </button>
   );
 }

@@ -19,7 +19,7 @@ const thermos: PropDef = {
 const bowl: PropDef = {
   kind: "bowl",
   name: "Enamel bowl",
-  radius: 0.19,
+  radius: 0.2,
   primitives: [
     { kind: "dome", radius: 0.18, scaleY: 0.72, pos: [0, -0.05, 0], mat: "enamel" },
     { kind: "cyl", rTop: 0.19, rBottom: 0.19, height: 0.018, pos: [0, -0.05, 0], mat: "cream" },
@@ -30,7 +30,7 @@ const bowl: PropDef = {
 const kettle: PropDef = {
   kind: "kettle",
   name: "Kettle",
-  radius: 0.22,
+  radius: 0.23,
   primitives: [
     { kind: "ellipsoid", radius: 0.13, scale: [1, 0.8, 1], pos: [0, -0.03, 0], mat: "enamel" },
     {
@@ -57,7 +57,7 @@ const kettle: PropDef = {
 const spoon: PropDef = {
   kind: "spoon",
   name: "Wooden spoon",
-  radius: 0.2,
+  radius: 0.24,
   primitives: [
     { kind: "ellipsoid", radius: 0.065, scale: [1, 1.6, 0.35], pos: [0, 0.1, 0], mat: "wood" },
     { kind: "box", size: [0.026, 0.26, 0.016], pos: [0, -0.1, 0], mat: "wood" },
@@ -67,7 +67,7 @@ const spoon: PropDef = {
 const boot: PropDef = {
   kind: "boot",
   name: "Hiking boot",
-  radius: 0.22,
+  radius: 0.27,
   primitives: [
     { kind: "box", size: [0.36, 0.035, 0.11], pos: [0.02, -0.145, 0], mat: "rubber" },
     { kind: "box", size: [0.26, 0.09, 0.1], pos: [0, -0.085, 0], mat: "leather" },

@@ -13,6 +13,7 @@ import { PROPS } from "../game/props";
 import { TILT_STEP, TURN_STEP } from "../game/shadow";
 import type { Material, Placement, Primitive, PropKind } from "../game/types";
 import { chippedPaint, scanned, steel } from "./materials";
+import { disposeTree } from "./resources";
 
 // Meshes built from the primitives the rules project. Edges are bevelled and rims rolled
 // inside each primitive's outline, so the rendered shadow still matches the judged one; the
@@ -129,8 +130,5 @@ export function highlightProp(view: PropView, on: boolean) {
 }
 
 export function disposeProp(view: PropView) {
-  for (const mesh of view.meshes) {
-    mesh.geometry.dispose();
-    (mesh.material as MeshStandardMaterial).dispose(); // textures are shared and cached
-  }
+  disposeTree(view.group);
 }

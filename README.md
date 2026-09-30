@@ -20,6 +20,8 @@
 
 ## How to play
 
+Approach the lantern-lit tent through the campsite, then choose **Light the lamp** or press Enter to glide into its shadow theatre. A three-step guide follows your actual actions: move a shadow, change its silhouette, then tell a secret. Skip it or replay it from **How to play**. Reduced motion cuts directly into play.
+
 Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a rocket. The camper's sketch shows the figure. Arrange two to four hanging props until their combined shadow matches it, then let go. It counts anywhere on the wall, at any size and even mirrored.
 
 | Action | Keyboard | Mouse / touch |
@@ -59,7 +61,7 @@ Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a
 
 Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict), Vite, Bun, Tailwind CSS v4, GSAP and Biome. Geometry is built in code. Surfaces use CC0 Poly Haven scans, and the rendering is physically based: an HDR composer with GTAO, thresholded bloom, a scotopic grade, Neutral tone mapping applied once, and SMAA. See `docs/visual/AUDIT.md`.
 
-- **Shadow projection you can test.** Each prop is a union of convex solids. `src/game/shadow.ts` projects every solid from the lamp onto the tent plane, takes the convex hull and rasterises it into a mask. The three.js spotlight sits at exactly the same lamp position, so what you see is what is scored.
+- **Shadow projection you can test.** Each prop is a union of convex solids. `src/game/shadow.ts` projects every solid from the lamp onto the tent plane, takes the convex hull and rasterises it into a mask. The three.js point light sits at exactly the same lamp position, so what you see is what is scored.
 - **Likeness that ignores where and how big.** A figure is centred on its centroid and scaled by √area into a 48 × 48 grid. It is then compared with the target by overlap (Dice), straight and mirrored. A participation factor makes every prop pull its weight, and each story has its own pass mark. Unit tests check that the known answer passes, that small slips still pass, and that random clutter almost never does.
 - **One light, two uses.** The lantern's point light sits at exactly the lamp position the rules project from, so the rendered shadow map *is* the judged figure. The canvas shader adds thin-fabric translucency, so from outside the tent the shadow play glows through.
 - **Advice from geometry.** Each prop's shadow is compared with its counterpart in a known answer, relative to the figure's largest prop. The biggest error, in the order size → outline → position, becomes one plain sentence.
@@ -70,7 +72,7 @@ Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict)
 bun install
 bun run dev        # http://127.0.0.1:4523/
 bun run check      # strict tsc, Biome, bun test, production build into dist/
-bun run test:e2e   # Playwright: tells story 1 by keyboard against the build
+bun run test:e2e   # Playwright: four stories, finale/replay, guide and touch layouts
 # visual evidence and README media, against a running preview:
 node tools/visual/capture.mjs <set>   # docs/visual/captures/<set>/
 node tools/visual/readme-media.mjs    # docs/readme/{desktop,phone}.png, preview.gif

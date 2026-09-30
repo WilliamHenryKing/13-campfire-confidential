@@ -18,6 +18,7 @@ export type PbrSet = { colour: Texture; normal: Texture; arm: Texture };
 const loader = new TextureLoader();
 const cache = new Map<string, Texture>();
 const pending: Promise<unknown>[] = [];
+const clones = new Set<Texture>();
 /** Clones waiting for their original's image: they upload only once flagged themselves. */
 const followers = new Map<Texture, Texture[]>();
 const base = `${import.meta.env.BASE_URL}textures/`;
@@ -64,19 +65,45 @@ export function paintMask(): Texture {
 
 /** Same images, own tiling: for surfaces that need a different real-world scale. */
 export function tiled(set: PbrSet, repeatU: number, repeatV = repeatU, rotation = 0): PbrSet {
-  const one = (t: Texture) => {
-    const c = t.clone();
-    c.repeat.set(repeatU, repeatV);
-    c.rotation = rotation;
-    const img = t.image as HTMLImageElement | undefined;
-    if (!(img?.complete && img.naturalWidth > 0)) {
-      // copy() marks the clone for upload; hold it until the shared image has arrived.
-      c.version = 0;
-      followers.set(t, [...(followers.get(t) ?? []), c]);
-    }
-    return c;
+  return {
+    colour: tile(set.colour, repeatU, repeatV, rotation),
+    normal: tile(set.normal, repeatU, repeatV, rotation),
+    arm: tile(set.arm, repeatU, repeatV, rotation),
   };
-  return { colour: one(set.colour), normal: one(set.normal), arm: one(set.arm) };
+}
+
+/** Clone just the map a material uses, rather than creating two unused followers. */
+export function tile(t: Texture, repeatU: number, repeatV = repeatU, rotation = 0): Texture {
+  const c = t.clone();
+  clones.add(c);
+  c.repeat.set(repeatU, repeatV);
+  c.rotation = rotation;
+  const img = t.image as HTMLImageElement | undefined;
+  if (!(img?.complete && img.naturalWidth > 0)) {
+    // copy() marks the clone for upload; hold it until the shared image has arrived.
+    c.version = 0;
+    followers.set(t, [...(followers.get(t) ?? []), c]);
+  }
+  return c;
+}
+
+export function disposeTexture(texture: Texture) {
+  clones.delete(texture);
+  for (const [original, copies] of followers) {
+    const remaining = copies.filter((copy) => copy !== texture);
+    if (remaining.length) followers.set(original, remaining);
+    else followers.delete(original);
+  }
+  texture.dispose();
+}
+
+/** The last scene closes the loader cache as well as maps still awaiting an image. */
+export function disposeTextures() {
+  for (const texture of new Set([...cache.values(), ...clones])) texture.dispose();
+  cache.clear();
+  clones.clear();
+  followers.clear();
+  pending.length = 0;
 }
 
 /** Resolves when every texture requested so far has decoded. */

@@ -13,7 +13,8 @@ import "./ui/styles.css";
 
 // Wiring: one store drives both the three.js world and the React HUD.
 
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let reducedMotion = motion.matches;
 if (reducedMotion) document.documentElement.classList.add("reduced-motion");
 
 const store = createStore(
@@ -44,8 +45,16 @@ sceneHost.className = "scene";
 document.body.prepend(sceneHost);
 
 const world = createWorld(sceneHost, reducedMotion);
+const onMotion = () => {
+  reducedMotion = motion.matches;
+  document.documentElement.classList.toggle("reduced-motion", reducedMotion);
+  world.setReducedMotion(reducedMotion);
+};
+motion.addEventListener("change", onMotion);
+if (world.opening.phase === "done") store.dispatch({ type: "start" });
 let interacting = false;
 let settleTimer = 0;
+const paintTimers = new Set<number>();
 /** Set by the capture hook: a posed scene must not tell itself. */
 let capturing = false;
 
@@ -53,11 +62,14 @@ function scheduleSettle() {
   if (capturing) return;
   window.clearTimeout(settleTimer);
   settleTimer = window.setTimeout(() => {
-    if (!interacting) store.dispatch({ type: "settle" });
+    if (!capturing && !interacting) store.dispatch({ type: "settle" });
   }, 420);
 }
 
 world.bind({
+  engage: () => {
+    interacting = true;
+  },
   depthOf: (i) => store.get().placements[i]?.z ?? 1,
   positionOf: (i) => {
     const p = store.get().placements[i];
@@ -70,7 +82,11 @@ world.bind({
     store.dispatch({ type: "select", index: i });
   },
   drag: (i, x, y) => store.dispatch({ type: "place", index: i, x, y }),
-  depth: (steps) => store.dispatch({ type: "nudge", dz: steps }),
+  depth: (steps) => {
+    if (store.get().phase !== "play") return;
+    interacting = true;
+    store.dispatch({ type: "nudge", dz: steps });
+  },
   release: () => {
     if (interacting) sound.play("settle");
     interacting = false;
@@ -83,6 +99,12 @@ let lastPlacements: GameState["placements"] | null = null;
 let lastTrace = "";
 
 function render(state: GameState) {
+  sceneHost.inert = state.phase !== "play" || world.opening.phase !== "done";
+  if (state.phase !== "play") clearTimeout(settleTimer);
+  if (state.phase !== "tableau") {
+    for (const timer of paintTimers) clearTimeout(timer);
+    paintTimers.clear();
+  }
   const chapter = chapterAt(state.chapter);
   const phaseChanged = !shown || shown.phase !== state.phase;
   if (!shown || shown.chapter !== state.chapter || shown.phase === "tableau")
@@ -90,11 +112,16 @@ function render(state: GameState) {
   if (state.phase === "tableau") {
     if (phaseChanged) {
       const n = reducedMotion ? 1 : state.told.length;
-      for (let k = 0; k < n; k++)
-        window.setTimeout(
-          () => sound.play("paint", { rate: 0.9 + k * 0.06 }),
+      for (let k = 0; k < n; k++) {
+        const timer = window.setTimeout(
+          () => {
+            paintTimers.delete(timer);
+            if (store.get().phase === "tableau") sound.play("paint", { rate: 0.9 + k * 0.06 });
+          },
           reducedMotion ? 0 : 500 + (k * 3200) / n,
         );
+        paintTimers.add(timer);
+      }
       world.tableau(
         state.told,
         state.told.map((_, k) => chapterAt(k).title),
@@ -133,11 +160,12 @@ function render(state: GameState) {
   shown = { chapter: state.chapter, phase: state.phase };
 }
 
-store.subscribe(() => render(store.get()));
+const unsubscribe = store.subscribe(() => render(store.get()));
 render(store.get());
 
 const root = document.getElementById("root");
-if (root) createRoot(root).render(<App store={store} sound={sound} />);
+const reactRoot = root ? createRoot(root) : null;
+reactRoot?.render(<App store={store} sound={sound} world={world} />);
 let firstFrame: () => void = () => {};
 const drawn = new Promise<void>((done) => {
   firstFrame = done;
@@ -155,3 +183,15 @@ if (wantsVisualTest())
       capturing = on;
     },
   );
+
+if (import.meta.hot)
+  import.meta.hot.dispose(() => {
+    clearTimeout(settleTimer);
+    for (const timer of paintTimers) clearTimeout(timer);
+    unsubscribe();
+    motion.removeEventListener("change", onMotion);
+    reactRoot?.unmount();
+    world.dispose();
+    sound.dispose();
+    sceneHost.remove();
+  });

@@ -27,4 +27,11 @@ describe("prop motion", () => {
     expect(alive("rocket", ALIVE_SECONDS).dy).toBeGreaterThan(0.5);
     expect(alive("snail", ALIVE_SECONDS).dx).toBeGreaterThan(0);
   });
+
+  test("the story stays at rest during its reveal delay and never advances beyond its endpoint", () => {
+    for (const story of ["mushroom", "rabbit", "snail", "rocket"]) {
+      expect(alive(story, -0.5)).toEqual({ dx: 0, dy: 0, roll: 0 });
+      expect(alive(story, ALIVE_SECONDS + 5)).toEqual(alive(story, ALIVE_SECONDS));
+    }
+  });
 });

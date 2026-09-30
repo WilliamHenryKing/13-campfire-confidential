@@ -26,6 +26,8 @@ export function adviceText(advice: Advice, names: readonly string[]): string {
   switch (advice.kind) {
     case "offwall":
       return `The ${name}'s shadow has slipped off the tent. Bring it back toward the middle.`;
+    case "overlap":
+      return `The ${name}'s shadow is hidden behind the others. Move it aside so it adds to the figure.`;
     case "size":
       return advice.grow
         ? `The ${name}'s shadow wants to be bigger: bring it toward the lamp.`

@@ -38,6 +38,7 @@ export const ALIVE_SECONDS = 3.2;
 
 /** How the whole figure moves t seconds after its story is told. */
 export function alive(chapterId: string, t: number): Pose {
+  t = Math.max(0, Math.min(ALIVE_SECONDS, t));
   const k = Math.min(1, t / ALIVE_SECONDS);
   const fade = Math.sin(Math.PI * k);
   switch (chapterId) {

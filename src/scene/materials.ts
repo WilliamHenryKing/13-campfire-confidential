@@ -10,7 +10,8 @@ import {
   type Texture,
   Vector2,
 } from "three";
-import { macroNoise, type PbrSet, paintMask, pbrSet, tiled } from "./textures";
+import { materialTextures } from "./resources";
+import { macroNoise, type PbrSet, paintMask, pbrSet, tile, tiled } from "./textures";
 
 // Material roles. Sourced CC0 scans (see assets.manifest.json) supply colour, normal and
 // AO·roughness·metalness at real-world scale; shader patches add what a single scan cannot:
@@ -40,6 +41,7 @@ function withMacro(m: MeshStandardMaterial, scale: number, low: number, high: nu
   m.onBeforeCompile = (shader, renderer) => {
     previous.call(m, shader, renderer);
     shader.uniforms.uMacro = { value: macroTexture() };
+    materialTextures(m, macroTexture());
     shader.fragmentShader = shader.fragmentShader
       .replace("void main() {", "uniform sampler2D uMacro;\nvoid main() {")
       .replace(
@@ -107,6 +109,7 @@ export function forestFloor(repeat: number) {
   );
   m.onBeforeCompile = (shader) => {
     shader.uniforms.uMacro = { value: macroTexture() };
+    materialTextures(m, macroTexture());
     shader.fragmentShader = shader.fragmentShader
       .replace("void main() {", "uniform sampler2D uMacro;\nvoid main() {")
       .replace(
@@ -137,9 +140,10 @@ export function chippedPaint(tint: string, name: string, chips = "#2c2a27", glos
     clearcoat: 0.55,
     clearcoatRoughness: 0.25,
   });
-  m.normalMap = tiled(set, scale).normal;
+  m.normalMap = tile(set.normal, scale);
   m.normalScale = new Vector2(0.35, 0.35);
-  const mask = tiled({ colour: paintMask(), normal: paintMask(), arm: paintMask() }, scale).colour;
+  const mask = tile(paintMask(), scale);
+  materialTextures(m, mask);
   const chip = new Color(chips);
   m.onBeforeCompile = (shader) => {
     shader.uniforms.uPaint = { value: mask };
@@ -161,7 +165,7 @@ export function chippedPaint(tint: string, name: string, chips = "#2c2a27", glos
 }
 
 export function steel(name = "steel", color = "#8f959a", roughness = 0.42) {
-  const arm = tiled(pbrSet("rusty_painted_metal"), 0.8).arm;
+  const arm = tile(pbrSet("rusty_painted_metal").arm, 0.8);
   return new MeshStandardMaterial({ name, color, metalness: 1, roughness, roughnessMap: arm });
 }
 

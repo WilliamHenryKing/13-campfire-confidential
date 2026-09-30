@@ -1,16 +1,32 @@
 import { describe, expect, test } from "bun:test";
 import { likeness, matchShadow, NORM, normalise } from "../src/game/compare";
+import { PROPS } from "../src/game/props";
 import {
   convexHull,
   LAMP,
   magnification,
+  primitiveWorldPoints,
   projectToWall,
   propShadow,
   unionMasks,
   WALL,
 } from "../src/game/shadow";
+import { clampPlacement } from "../src/game/state";
 
 const still = { x: 0, y: 1.2, z: 2, turn: 0, tilt: 0 };
+
+test("every floor-clamped prop stays above ground through all turn and tilt steps", () => {
+  for (const prop of Object.values(PROPS)) {
+    for (let turn = 0; turn < 8; turn++) {
+      for (let tilt = 0; tilt < 24; tilt++) {
+        const at = clampPlacement({ ...still, y: -1, turn, tilt }, prop.radius);
+        const points = prop.primitives.flatMap((primitive) => primitiveWorldPoints(primitive, at));
+        const lowest = Math.min(...points.map((point) => point[1]));
+        expect(lowest).toBeGreaterThanOrEqual(0);
+      }
+    }
+  }
+});
 
 describe("projection", () => {
   test("a point on the wall casts its shadow on itself", () => {

@@ -111,8 +111,17 @@ function enterChapter(state: GameState, chapter: number): GameState {
 function edit(state: GameState, index: number, fn: (p: Placement) => Placement, radius: number) {
   const current = state.placements[index];
   if (state.phase !== "play" || !current) return state;
+  const next = clampPlacement(fn(current), radius);
+  if (
+    next.x === current.x &&
+    next.y === current.y &&
+    next.z === current.z &&
+    next.turn === current.turn &&
+    next.tilt === current.tilt
+  )
+    return state.selected === index ? state : { ...state, selected: index };
   const placements = state.placements.slice();
-  placements[index] = clampPlacement(fn(current), radius);
+  placements[index] = next;
   return { ...state, placements, selected: index, moves: state.moves + 1 };
 }
 

@@ -11,16 +11,25 @@ export function StoryCard({
   sketch,
   score,
   advice,
+  inert = false,
 }: {
   chapter: Chapter;
   index: number;
   sketch: Uint8Array;
   score: number;
   advice: string | null;
+  inert?: boolean;
 }) {
-  const pct = Math.round(Math.min(1, score / chapter.pass) * 100);
+  const pct = Math.round(Math.max(0, Math.min(1, score / chapter.pass)) * 100);
+  const likeness = likenessWord(score, chapter.pass);
   return (
-    <section aria-label="The story to tell" className="panel story">
+    <section
+      aria-label="The story to tell"
+      className="panel story"
+      inert={inert}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: The bounded story region must support keyboard scrolling.
+      tabIndex={0}
+    >
       <p className="eyebrow">
         Story {index + 1} of {CHAPTERS.length} · {chapter.teller}
       </p>
@@ -32,13 +41,22 @@ export function StoryCard({
         </div>
       </div>
       <div className="meter-row">
-        <span className="meter-label">Likeness</span>
+        <span id="likeness-label" className="meter-label">
+          Likeness
+        </span>
+        <meter
+          className="sr-only-text"
+          aria-labelledby="likeness-label"
+          min={0}
+          max={100}
+          value={pct}
+          aria-valuetext={`${likeness}, ${pct} percent of the needed likeness`}
+        />
         <div className="meter" aria-hidden="true">
           <i style={{ width: `${pct}%` }} />
         </div>
-        <span className="meter-word">
-          {likenessWord(score, chapter.pass)}
-          <span className="sr-only-text"> ({pct}%)</span>
+        <span className="meter-word" aria-hidden="true">
+          {likeness}
         </span>
       </div>
       <p className="advice" aria-live="polite">

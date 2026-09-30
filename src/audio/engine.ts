@@ -1,6 +1,7 @@
 // Web Audio engine: music, ambience and SFX buses under one master gain. The context is
 // created on the first user gesture, mute persists in localStorage, and everything is
 // suspended while the tab is hidden.
+import { AudioLifetime } from "./lifetime";
 
 export type Sfx =
   | "grab"
@@ -76,6 +77,7 @@ function readMuted(): boolean {
 }
 
 export interface SoundEngine {
+  dispose(): void;
   readonly muted: boolean;
   setMuted(muted: boolean): void;
   subscribe(fn: () => void): () => void;
@@ -88,6 +90,7 @@ export interface SoundEngine {
 }
 
 export function createSoundEngine(reducedMotion: boolean): SoundEngine {
+  const life = new AudioLifetime();
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
   let musicBus: GainNode | null = null;
@@ -97,22 +100,32 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
   let begun = false;
   let wantBegin = false;
   const buffers = new Map<string, AudioBuffer>();
+  const pending = new Map<string, Promise<void>>();
   const listeners = new Set<() => void>();
 
-  const load = async (name: string) => {
-    if (!ctx || buffers.has(name)) return;
-    try {
-      const res = await fetch(`${base}${name}.mp3`);
-      const data = await res.arrayBuffer();
-      buffers.set(name, await ctx.decodeAudioData(data));
-    } catch {
-      // A missing or undecodable file just stays silent.
-    }
+  const load = (name: string): Promise<void> => {
+    if (life.disposed || !ctx || buffers.has(name)) return Promise.resolve();
+    const existing = pending.get(name);
+    if (existing) return existing;
+    const context = ctx;
+    const job = (async () => {
+      try {
+        const res = await fetch(`${base}${name}.mp3`, { signal: life.signal });
+        const data = await res.arrayBuffer();
+        if (life.disposed) return;
+        const buffer = await context.decodeAudioData(data);
+        if (!life.disposed && ctx === context) buffers.set(name, buffer);
+      } catch {
+        // Missing files and cancelled visits stay silent.
+      }
+    })().finally(() => pending.delete(name));
+    pending.set(name, job);
+    return job;
   };
 
   const loop = (name: string, bus: GainNode, gain: number, fadeIn: number) => {
     const buf = buffers.get(name);
-    if (!ctx || !buf) return;
+    if (life.disposed || !ctx || !buf) return;
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.loop = true;
@@ -123,13 +136,14 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
     g.gain.setValueAtTime(0, ctx.currentTime);
     g.gain.linearRampToValueAtTime(gain, ctx.currentTime + fadeIn);
     src.connect(g).connect(bus);
+    life.source(src, g);
     src.start(ctx.currentTime, src.loopStart);
     return g;
   };
 
   /** Soft filtered-noise bed: lantern hiss. Tiny and procedural. */
   const hiss = (bus: GainNode) => {
-    if (!ctx) return;
+    if (life.disposed || !ctx) return;
     const len = ctx.sampleRate * 2;
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -150,42 +164,46 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
       const depth = ctx.createGain();
       depth.gain.value = 0.004;
       lfo.connect(depth).connect(g.gain);
+      life.source(lfo, depth);
       lfo.start();
     }
     src.connect(band).connect(g).connect(bus);
+    life.source(src, band, g);
     src.start();
   };
 
   const startBeds = async () => {
     if (!ctx || !musicBus || !ambBus) return;
     await Promise.all(["amb-crickets", "amb-fire", "amb-wind"].map(load));
+    if (life.disposed || !ctx || !ambBus || !musicBus) return;
     loop("amb-crickets", ambBus, 0.55, 3);
     loop("amb-fire", ambBus, 0.35, 4);
     const wind = loop("amb-wind", ambBus, 0.12, 6);
     if (wind && !reducedMotion) {
       // Canvas-wind gusts: slow random swells on the wind layer.
       const gust = () => {
-        if (!ctx) return;
+        if (life.disposed || !ctx) return;
         const t = ctx.currentTime;
         wind.gain.cancelScheduledValues(t);
         wind.gain.setValueAtTime(wind.gain.value, t);
         wind.gain.linearRampToValueAtTime(0.08 + Math.random() * 0.22, t + 2 + Math.random() * 3);
-        window.setTimeout(gust, 5000 + Math.random() * 7000);
+        life.later(gust, 5000 + Math.random() * 7000);
       };
-      window.setTimeout(gust, 6000);
+      life.later(gust, 6000);
     }
     hiss(ambBus);
     await load("music-meadow-thoughts");
+    if (life.disposed || !ctx || !musicBus) return;
     loop("music-meadow-thoughts", musicBus, 0.5, 5);
     const hoot = () => {
       engine.owl();
-      window.setTimeout(hoot, 35000 + Math.random() * 40000);
+      life.later(hoot, 35000 + Math.random() * 40000);
     };
-    window.setTimeout(hoot, 20000 + Math.random() * 15000);
+    life.later(hoot, 20000 + Math.random() * 15000);
   };
 
   const init = () => {
-    if (ctx) return;
+    if (life.disposed || ctx) return;
     const Ctor =
       window.AudioContext ??
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -210,17 +228,31 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
   window.addEventListener("pointerdown", onGesture, { capture: true });
   window.addEventListener("keydown", onGesture, { capture: true });
 
-  document.addEventListener("visibilitychange", () => {
+  const onVisibility = () => {
     if (!ctx) return;
     if (document.hidden || muted) void ctx.suspend();
     else void ctx.resume();
-  });
+  };
+  document.addEventListener("visibilitychange", onVisibility);
 
   const engine: SoundEngine = {
+    dispose() {
+      if (life.disposed) return;
+      window.removeEventListener("pointerdown", onGesture, { capture: true });
+      window.removeEventListener("keydown", onGesture, { capture: true });
+      document.removeEventListener("visibilitychange", onVisibility);
+      life.dispose(ctx);
+      ctx = null;
+      master = musicBus = ambBus = sfxBus = null;
+      listeners.clear();
+      pending.clear();
+      buffers.clear();
+    },
     get muted() {
       return muted;
     },
     setMuted(next) {
+      if (life.disposed) return;
       muted = next;
       try {
         window.localStorage.setItem(MUTE_KEY, next ? "1" : "0");
@@ -229,23 +261,28 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
       }
       if (ctx && master) {
         master.gain.setTargetAtTime(next ? 0 : 0.9, ctx.currentTime, 0.05);
-        if (next) window.setTimeout(() => muted && ctx?.suspend(), 200);
+        if (next)
+          life.later(() => {
+            if (muted) void ctx?.suspend();
+          }, 200);
         else if (!document.hidden) void ctx.resume();
       }
       for (const fn of listeners) fn();
     },
     subscribe(fn) {
+      if (life.disposed) return () => {};
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
     begin() {
+      if (life.disposed) return;
       wantBegin = true;
       if (!ctx || begun) return;
       begun = true;
       void startBeds();
     },
     play(name, opts = {}) {
-      if (!ctx || !sfxBus || muted || ctx.state !== "running") return;
+      if (life.disposed || !ctx || !sfxBus || muted || ctx.state !== "running") return;
       const buf = buffers.get(`sfx-${name}`);
       if (!buf) {
         // Still decoding right after the first gesture: play it if it arrives promptly.
@@ -263,6 +300,7 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
       const g = ctx.createGain();
       g.gain.value = (LEVEL[name] ?? 0.55) * (opts.gain ?? 1);
       src.connect(g).connect(sfxBus);
+      life.source(src, g);
       src.start();
     },
     setMood(level) {
@@ -296,6 +334,7 @@ export function createSoundEngine(reducedMotion: boolean): SoundEngine {
         g.gain.linearRampToValueAtTime(amp, t0 + at + 0.06);
         g.gain.setTargetAtTime(0, t0 + at + dur * 0.6, dur * 0.25);
         o.connect(g).connect(lp);
+        life.source(o, g, ...(at === 1.25 ? [lp, out] : []));
         o.start(t0 + at);
         o.stop(t0 + at + dur + 0.6);
       }

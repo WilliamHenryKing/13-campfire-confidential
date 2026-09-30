@@ -1,92 +1,133 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { SoundEngine } from "../audio/engine";
 import { CHAPTERS, type Chapter } from "../game/chapters";
+import { trapDialogTab } from "./focus";
+import { MuteButton } from "./MuteButton";
 
-// Title, "told" and ending cards, plus the first-time coach tip. Each moves focus to its
-// main action so keyboard players never have to hunt for it.
+// The readable story dialogs leave the shadow scene visible behind them.
 
-function useAutoFocus<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  useEffect(() => ref.current?.focus(), []);
+function useDialogFocus() {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    ref.current?.focus({ preventScroll: true });
+    if (ref.current) ref.current.scrollTop = 0;
+  }, []);
   return ref;
 }
 
-export function TitleCard({ onStart }: { onStart: () => void }) {
-  const button = useAutoFocus<HTMLButtonElement>();
-  return (
-    <section className="card card-center" aria-labelledby="title">
-      <p className="eyebrow">Camp Pinecone · after lights out</p>
-      <h1 id="title" className="title">
-        Campfire Confidential
-      </h1>
-      <p className="lede">
-        At Camp Pinecone every secret must be told in shadows. Hang the camp's odds and ends in
-        front of the lantern until their shadows on the tent tell the story.
-      </p>
-      <button ref={button} type="button" className="cta" onClick={onStart}>
-        Light the lamp
-      </button>
-    </section>
+function subscribeMotion(notify: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+}
+
+function useReducedMotion() {
+  return useSyncExternalStore(
+    subscribeMotion,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
   );
 }
 
-const REDUCED =
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /** Split a told line into sentences, revealed one after another. */
 export function sentences(text: string): string[] {
-  return text.split(/(?<=[.!?])\s+/).filter(Boolean);
+  return text
+    .trim()
+    .split(/(?<=[.!?])\s+/)
+    .filter(Boolean);
 }
 
 export function ToldCard({
   chapter,
   last,
   onNext,
+  sound,
 }: {
   chapter: Chapter;
   last: boolean;
   onNext: () => void;
+  sound: SoundEngine;
 }) {
-  const button = useAutoFocus<HTMLButtonElement>();
+  const dialog = useDialogFocus();
+  const button = useRef<HTMLButtonElement>(null);
+  const reduced = useReducedMotion();
   const lines = sentences(chapter.told);
-  const [shown, setShown] = useState(REDUCED ? lines.length : 0);
+  const [reveal, setReveal] = useState({ id: chapter.id, count: reduced ? lines.length : 0 });
+  const shown = reduced ? lines.length : reveal.id === chapter.id ? reveal.count : 0;
   useEffect(() => {
+    if (reduced) {
+      setReveal({ id: chapter.id, count: lines.length });
+      return;
+    }
     if (shown >= lines.length) return;
-    const t = window.setTimeout(() => setShown((n) => n + 1), shown === 0 ? 900 : 1300);
+    const t = window.setTimeout(
+      () => setReveal({ id: chapter.id, count: shown + 1 }),
+      shown === 0 ? 900 : 1300,
+    );
     return () => window.clearTimeout(t);
-  }, [shown, lines.length]);
+  }, [shown, lines.length, chapter.id, reduced]);
   return (
-    <section className="card card-told" aria-labelledby="told-title">
+    <section
+      ref={dialog}
+      className="card card-told"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="told-title"
+      aria-describedby="told-copy"
+      tabIndex={-1}
+      onKeyDown={(e) =>
+        trapDialogTab(e, [
+          ...(dialog.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []),
+        ])
+      }
+    >
       <p className="eyebrow">Secret told · {chapter.teller}</p>
       <h2 id="told-title" className="story-title">
         {chapter.title}
       </h2>
-      <p className="lede told-lines" aria-live="polite">
+      <p id="told-copy" className="sr-only-text">
+        {chapter.told}
+      </p>
+      <p className="lede told-lines" aria-hidden="true">
         {lines.map((line, i) => (
-          <span
-            key={line}
-            className={i < shown ? "line is-shown" : "line"}
-            aria-hidden={i >= shown}
-          >
+          <span key={line} className={i < shown ? "line is-shown" : "line"}>
             {line}{" "}
           </span>
         ))}
       </p>
-      <button ref={button} type="button" className="cta" onClick={onNext}>
-        {last ? "Close the case" : "Next story"}
-      </button>
+      <div className="dialog-actions">
+        <MuteButton sound={sound} inline />
+        <button ref={button} type="button" className="cta" onClick={onNext}>
+          {last ? "Close the case" : "Next story"}
+        </button>
+      </div>
     </section>
   );
 }
 
-export function EndingCard({ onReplay }: { onReplay: () => void }) {
-  const button = useAutoFocus<HTMLButtonElement>();
+export function EndingCard({ onReplay, sound }: { onReplay: () => void; sound: SoundEngine }) {
+  const dialog = useDialogFocus();
+  const button = useRef<HTMLButtonElement>(null);
   return (
-    <section className="card card-end" aria-labelledby="end-title">
+    <section
+      ref={dialog}
+      className="card card-end"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="end-title"
+      aria-describedby="end-copy"
+      tabIndex={-1}
+      onKeyDown={(e) =>
+        trapDialogTab(e, [
+          ...(dialog.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []),
+        ])
+      }
+    >
       <p className="eyebrow">The lamp burns low · the counsellor's report</p>
       <h2 id="end-title" className="title title-sm">
         Case closed
       </h2>
-      <p className="lede">
+      <p id="end-copy" className="lede">
         Four campers, four secrets, one lantern. A mushroom, a rabbit, a snail and a rocket: a
         perfectly normal night at Camp Pinecone, told entirely in your shadows.
       </p>
@@ -97,27 +138,13 @@ export function EndingCard({ onReplay }: { onReplay: () => void }) {
           </li>
         ))}
       </ol>
-      <button ref={button} type="button" className="cta" onClick={onReplay}>
-        Tell them again
-      </button>
+      <div className="dialog-actions">
+        <MuteButton sound={sound} inline />
+        <button ref={button} type="button" className="cta" onClick={onReplay}>
+          Tell them again
+        </button>
+      </div>
     </section>
-  );
-}
-
-export function CoachTip({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <aside className="coach" aria-label="How to play">
-      <p>
-        <b>Drag a prop</b> to move its shadow. <b>Scroll, pinch</b> or use Bigger/Smaller to bring
-        it toward the lamp. <b>Turn</b> and <b>Tilt</b> change its outline.
-      </p>
-      <p className="coach-keys">
-        Keys: 1–4 pick · arrows move · + − size · Q E turn · Z X tilt · H hint · R reset
-      </p>
-      <button type="button" className="coach-ok" onClick={onDismiss}>
-        Got it
-      </button>
-    </aside>
   );
 }
 

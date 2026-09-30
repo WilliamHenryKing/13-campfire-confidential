@@ -125,7 +125,6 @@ export class Pipeline {
   readonly ao: GTAOPass | null;
   readonly bloom: UnrealBloomPass;
   readonly grade: ShaderPass;
-  private readonly smaa: SMAAPass;
   private pixelRatio: number;
   /** Resolution scale the adaptive step may lower (to 0.6), on top of the pixel budget. */
   private scale = 1;
@@ -197,8 +196,7 @@ export class Pipeline {
     this.grade = new ShaderPass(GradeShader);
     this.composer.addPass(this.grade);
     this.composer.addPass(new OutputPass());
-    this.smaa = new SMAAPass();
-    this.composer.addPass(this.smaa);
+    this.composer.addPass(new SMAAPass());
   }
 
   get domElement() {
@@ -285,9 +283,11 @@ export class Pipeline {
   }
 
   dispose() {
-    this.ao?.dispose();
-    this.bloom.dispose();
-    this.smaa.dispose();
+    // These are omitted by the pinned passes' own dispose implementations.
+    this.ao?.gtaoMaterial.dispose();
+    this.ao?.blendMaterial.dispose();
+    this.bloom.materialHighPassFilter.dispose();
+    for (const pass of this.composer.passes) pass.dispose();
     this.composer.dispose();
     this.renderer.dispose();
   }
