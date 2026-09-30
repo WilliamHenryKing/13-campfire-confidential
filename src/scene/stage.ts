@@ -13,7 +13,7 @@ import type { Bookmark } from "./bookmarks";
 import { buildCampsite, buildSetDressing } from "./campsite";
 import { createDust } from "./dust";
 import { buildLantern } from "./lantern";
-import { detectTier, forcedTier, Pipeline } from "./pipeline";
+import { detectTier, forcedTier, modestGpu, Pipeline } from "./pipeline";
 import { texturesLoaded } from "./textures";
 
 // Renderer, camera and light. The lantern is the one key light: a point light at exactly the
@@ -50,7 +50,13 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
   const tier = detectTier();
 
   const dust = createDust(reducedMotion);
-  const pipeline = new Pipeline(scene, camera, tier, () => [dust.object]);
+  const pipeline = new Pipeline(
+    scene,
+    camera,
+    tier,
+    () => [dust.object],
+    tier === "high" && forcedTier() === null && modestGpu(),
+  );
   const renderer = pipeline.renderer;
   renderer.toneMappingExposure = EXPOSURE;
   renderer.domElement.setAttribute("aria-hidden", "true");
@@ -106,7 +112,7 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
       dressed();
     };
     if (!renderer.extensions.has("KHR_parallel_shader_compile")) return add();
-    void renderer
+    void pipeline
       .compileAsync(extra, camera, scene)
       .catch(() => undefined)
       .then(add);
@@ -232,10 +238,12 @@ export function createStage(host: HTMLElement, reducedMotion: boolean): Stage {
         raf = requestAnimationFrame(loop);
         return;
       }
-      void renderer
-        .compileAsync(scene, camera)
+      // After the sky is in: an environment map changes every standard program.
+      void env
+        .then(() => pipeline.compileAsync(scene, camera))
         .catch(() => undefined)
         .then(() => {
+          pipeline.warm(scene);
           raf = requestAnimationFrame(loop);
         });
     },
