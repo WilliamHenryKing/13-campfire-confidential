@@ -1,84 +1,81 @@
-<p align="center">
-  <img src="docs/readme/banner.svg" alt="Campfire Confidential: lantern-lit tent canvas where a shadow mushroom forms" width="100%">
-</p>
+# CAMPFIRE CONFIDENTIAL
 
-<p align="center">
-  <a href="https://13-campfire-confidential.williamking.workers.dev"><img alt="Play it live" src="https://img.shields.io/badge/Play_it_live-%E2%96%B6-ff9a3c?style=for-the-badge&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://threejs.org"><img alt="Three.js" src="https://img.shields.io/badge/Three.js-ff9a3c?style=for-the-badge&logo=threedotjs&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://www.typescriptlang.org"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-ff9a3c?style=for-the-badge&logo=typescript&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://vite.dev"><img alt="Vite" src="https://img.shields.io/badge/Vite-ff9a3c?style=for-the-badge&logo=vite&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://bun.sh"><img alt="Bun" src="https://img.shields.io/badge/Bun-ff9a3c?style=for-the-badge&logo=bun&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://tailwindcss.com"><img alt="Tailwind" src="https://img.shields.io/badge/Tailwind-ff9a3c?style=for-the-badge&logo=tailwindcss&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-  <a href="https://gsap.com"><img alt="GSAP" src="https://img.shields.io/badge/GSAP-ff9a3c?style=for-the-badge&logo=greensock&logoColor=1b1109&labelColor=0d0e16&color=ff9a3c"></a>
-</p>
+<p align="center"><img src="docs/readme/banner.svg" alt="CAMPFIRE CONFIDENTIAL" width="100%"></p>
 
-<p align="center"><b>Hang the camp's odds and ends in front of a lantern until their shadows on the tent tell the campers' strangest secrets.</b></p>
+Hang the camp's odds and ends in front of a lantern until their shadows tell a story. Four campers have seen a mushroom, rabbit, snail and rocket. Move, turn, tilt and resize the props until the tent agrees with them.
 
-<p align="center">
-  <img src="docs/readme/preview.gif" alt="Gameplay: the lamp is lit, a thermos and an enamel bowl are moved until their shadows form a mushroom, which is traced in gold" width="800">
-</p>
+**[Light the lamp →](https://13-campfire-confidential.williamking.workers.dev)** · [Run locally](#run-locally) · [Credits](#credits)
 
-## How to play
+<p align="center"><img src="docs/readme/preview.gif" alt="The current campsite approach gliding into the lantern shadow theatre and guide" width="800"></p>
 
-Approach the lantern-lit tent through the campsite, then choose **Light the lamp** or press Enter to glide into its shadow theatre. A three-step guide follows your actual actions: move a shadow, change its silhouette, then tell a secret. Skip it or replay it from **How to play**. Reduced motion cuts directly into play.
+## Tell a secret with a shadow
 
-Four campers each report a strange sighting: a mushroom, a rabbit, a snail and a rocket. The camper's sketch shows the figure. Arrange two to four hanging props until their combined shadow matches it, then let go. It counts anywhere on the wall, at any size and even mirrored.
+The opening approaches the lantern-lit tent. Choose **Light the lamp** or press Enter, then follow the three-step guide: move a shadow, change its silhouette and tell a secret. **How to play** reopens help; reduced motion cuts into the same puzzle without the approach.
 
-| Action | Keyboard | Mouse / touch |
+Each story uses two to four hanging props. Match the camper's sketch with their combined shadow, then let go to settle the arrangement. A shape can count at different positions, sizes or mirrored orientation. Every required prop still has to participate; hiding one outside the useful scene cannot create a win.
+
+| Action | Keyboard | Pointer or touch |
 | --- | --- | --- |
-| Pick a prop | `1`–`4`, or `,` / `.` to cycle | Tap the prop or its chip |
-| Move its shadow | Arrow keys | Drag the prop, or the ← ↑ ↓ → buttons |
-| Bigger / smaller shadow | `+` / `−` | Scroll, pinch, or **Bigger** / **Smaller** |
-| Turn the prop | `Q` / `E` | **Turn ↻** |
-| Tilt the prop | `Z` / `X` | **Tilt ↶** / **Tilt ↷** |
-| Hint: advice, then a chalk trace | `H` | **Hint** → **Trace it** |
-| Reset the story | `R` | **Reset** |
-| Sound on / off (remembered) | `M` | 🔊 button, top right |
+| Select a prop | 1–4, comma/period to cycle | Prop or chip |
+| Move the shadow | Arrows | Drag or directional buttons |
+| Change shadow size | + / − | Wheel, pinch, Bigger / Smaller |
+| Turn | Q / E | Turn control |
+| Tilt | Z / X | Tilt controls |
+| Hint, then trace | H | Hint, then Trace it |
+| Reset the story | R | Reset |
+| Toggle sound | M | Sound |
 
-## What's inside
+The live likeness meter gives feedback as you work. Advice names a prop and a useful change; the chalk trace is available if the sketch is still hard to read. Completed shadows come alive: the mushroom sways, rabbit hops, snail crawls and rocket rises. Finish all four to see the illustrated tableau and replay option.
 
-- **Real shadows, fairly judged.** The rendered shadow is the one being scored. Your figure is compared by shape, not by pixel position, so there is no single hidden answer.
-- **Four stories and a finale.** Each told secret brings its figure to life: the mushroom sways, the rabbit hops, the snail crawls and the rocket lifts off. The last story ends on a painted storyboard of your own shadows.
-- **Feedback that helps.** A live likeness meter, and advice that names one prop and one change ("the kettle's shadow wants to be bigger"). A chalk trace of the sketch follows if you need it.
-- **Cosy sound design.** A harp loop, crickets, fire and canvas wind, plus a clink per material, creaks, rising ticks as the likeness climbs, and a reveal sting.
-- **A real lantern night.** A pressure lantern is the only key light, so real shadows fall on a woven canvas tent. The props are chipped enamel, grained wood and worn leather, and they swing on their strings in air full of drifting dust.
-- **Made for everyone.** Mouse, touch and keyboard, labelled controls with visible focus, and a phone layout. `prefers-reduced-motion` turns off every animation.
+## How the shadows are judged
 
-## Screenshots
+Each prop is built from convex solids. A pure projection function casts those solids from the lantern onto the tent, then rasterises the combined silhouette. Normalisation makes position and scale flexible; overlap, mirrored comparison and participation determine the score. The scene uses the same lamp position for the visible shadow.
 
-<table>
-  <tr>
-    <td width="68%"><img src="docs/readme/desktop.png" alt="Desktop: the rabbit story just told, its shadow traced in gold on the tent"></td>
-    <td width="32%"><img src="docs/readme/phone.png" alt="Phone: the rabbit taking shape, with advice to move a spoon toward the lamp"></td>
-  </tr>
-  <tr>
-    <td align="center">Desktop, 1440 × 900</td>
-    <td align="center">Phone, 390 × 844</td>
-  </tr>
-</table>
+The current input system settles drags and pinches, keeps held controls from leaking across dialogs and respects physical floor bounds. Compact layouts keep the story, guide and action controls readable. The renderer uses adaptive quality, prepared shaders and finite-colour protection, while scene and audio resources are released on teardown.
 
-## Built with
+## Verification and source
 
-Three.js 0.186 (no framework wrapper), React 19 for the HUD, TypeScript (strict), Vite, Bun, Tailwind CSS v4, GSAP and Biome. Geometry is built in code. Surfaces use CC0 Poly Haven scans, and the rendering is physically based: an HDR composer with GTAO, thresholded bloom, a scotopic grade, Neutral tone mapping applied once, and SMAA. See `docs/visual/AUDIT.md`.
+Application revision `9175ad3` passed **89 tests / 1,876 assertions**, independent projection checks and **1,344 floor configurations**. Five RTX 2060 scenarios cover all four stories, ending/replay, touch layouts, stationary pinch settlement and live motion/input edges. See the [intro and audit report](docs/visual/INTRO-2026-09-30.md).
 
-- **Shadow projection you can test.** Each prop is a union of convex solids. `src/game/shadow.ts` projects every solid from the lamp onto the tent plane, takes the convex hull and rasterises it into a mask. The three.js point light sits at exactly the same lamp position, so what you see is what is scored.
-- **Likeness that ignores where and how big.** A figure is centred on its centroid and scaled by √area into a 48 × 48 grid. It is then compared with the target by overlap (Dice), straight and mirrored. A participation factor makes every prop pull its weight, and each story has its own pass mark. Unit tests check that the known answer passes, that small slips still pass, and that random clutter almost never does.
-- **One light, two uses.** The lantern's point light sits at exactly the lamp position the rules project from, so the rendered shadow map *is* the judged figure. The canvas shader adds thin-fabric translucency, so from outside the tent the shadow play glows through.
-- **Advice from geometry.** Each prop's shadow is compared with its counterpart in a known answer, relative to the figure's largest prop. The biggest error, in the order size → outline → position, becomes one plain sentence.
+[src/game/](src/game/) owns projection and scoring; [src/scene/](src/scene/) owns the lantern, tent and props; [src/ui/](src/ui/) owns story controls; [src/audio/](src/audio/) combines the credited harp, ambience and effects with synthesised details.
 
-## Run it locally
+## Current screenshots
+
+| Desktop | Phone |
+| --- | --- |
+| <img src="docs/readme/desktop.jpg" alt="CAMPFIRE CONFIDENTIAL: current desktop opening" width="600"> | <img src="docs/readme/phone.jpg" alt="CAMPFIRE CONFIDENTIAL: current phone interface" width="240"> |
+
+<img src="docs/readme/detail.jpg" alt="CAMPFIRE CONFIDENTIAL: the experience after the opening" width="800">
+
+The opening loop and three main screenshots were captured from the live site on **1 October 2026**, using Chrome on this workstation; the phone image is a 390 × 844 browser viewport. The animated preview is a short loop, not a full playthrough. [Capture details](docs/readme/capture.json).
+
+## Run locally
+
+Use **Bun 1.3.10** (the version pinned in `package.json`) and Node.js 22.12 or newer. From this repository:
 
 ```sh
-bun install
-bun run dev        # http://127.0.0.1:4523/
-bun run check      # strict tsc, Biome, bun test, production build into dist/
-bun run test:e2e   # Playwright: four stories, finale/replay, guide and touch layouts
-# visual evidence and README media, against a running preview:
-node tools/visual/capture.mjs <set>   # docs/visual/captures/<set>/
-node tools/visual/readme-media.mjs    # docs/readme/{desktop,phone}.png, preview.gif
+bun install --frozen-lockfile
+bun run dev      # http://127.0.0.1:4523/
+bun run check    # strict types, Biome, unit tests and production build
+bun run preview  # http://127.0.0.1:4623/ after the build
 ```
 
-Append `?tier=low` for the phone tier, or `?e2e` for the capture hook (`window.__VISUAL_TEST__`).
+Development and preview are separate long-running commands; run one at a time or use separate terminals. `bun run build` writes the static production output to `dist/`. Dependencies and the lockfile are local to this project.
+
+### Browser suite
+
+Install the test browser once, then run the checked-in Playwright suite. Its configuration builds and starts the production preview. Browser scenarios are separate from `bun run check`.
+
+```sh
+bunx playwright install chromium
+bun run test:e2e
+```
+
+The recorded real-GPU release checks used installed Chrome on an RTX 2060; the default Chromium configuration is not a claim of physical-phone coverage.
+
+## Stack and release
+
+Direct Three.js 0.186 · React 19.3 · strict TypeScript · Vite 8.3 · GSAP 3.15 · Tailwind CSS 4.3 · Bun 1.3.10 · Biome. The public website is served by Cloudflare Workers. This README describes [application revision 9175ad3](https://github.com/WilliamHenryKing/13-campfire-confidential/commit/9175ad336111a33556e8d864bea581ce0e95fd44); the documentation refresh changes no application behaviour.
 
 ## Credits
 
@@ -112,4 +109,4 @@ The lantern hiss and the distant owl are synthesised with Web Audio in `src/audi
 
 ---
 
-<p align="center"><sub>Part of William King's portfolio collection</sub></p>
+Part of [William King's portfolio collection](https://github.com/WilliamHenryKing).
